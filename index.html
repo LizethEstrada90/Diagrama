@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama Visual - Arquitectura Prevén</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-soft: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --shadow-hard: 0 15px 35px rgba(31, 38, 135, 0.5);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --accent-blue: #3182ce;
+            --accent-purple: #805ad5;
+            --accent-green: #38a169;
+            --accent-orange: #dd6b20;
+            --accent-red: #e53e3e;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3498db 0%, #2ecc71 50%, #27ae60 100%);
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(46, 204, 113, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(39, 174, 96, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .diagram-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-hard);
+            padding: 25px;
+            margin: 0 auto;
+            max-width: 1400px;
+            width: 100%;
+            position: relative;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #3498db, #2ecc71, #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            position: relative;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #3498db, #2ecc71, #27ae60);
+            border-radius: 2px;
+            animation: expandWidth 1s ease-out 0.5s both;
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 60px; }
+        }
+
+        .header p {
+            color: var(--accent-blue);
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            padding: 0 15px;
+        }
+
+        .control-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 140px;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .control-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-current {
+            background: var(--success-gradient);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-future {
+            background: var(--warning-gradient);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-both {
+            background: var(--secondary-gradient);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .sidebar-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .legend, .phase-indicator {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 16px;
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+        }
+
+        .legend:hover, .phase-indicator:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hard);
+        }
+
+        .legend h3, .phase-indicator h3 {
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            text-align: center;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 700;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 4px;
+            margin-right: 15px;
+            border-radius: 2px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-text {
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .phase-current, .phase-future {
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-current {
+            background: var(--success-gradient);
+        }
+
+        .phase-future {
+            background: var(--warning-gradient);
+        }
+
+        .phase-current::before, .phase-future::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .diagram-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            background: 
+                linear-gradient(45deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0f4f8' fill-opacity='0.4'%3E%3Ccircle cx='7' cy='7' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .diagram-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(102, 126, 234, 0.05) 0%, 
+                rgba(118, 75, 162, 0.05) 50%, 
+                rgba(240, 147, 251, 0.05) 100%);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .diagram-svg {
+            width: 100%;
+            min-width: 900px;
+            height: auto;
+            min-height: 600px;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .site-box {
+            fill: none;
+            stroke-width: 3;
+            rx: 20;
+            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15));
+            transition: all 0.3s ease;
+        }
+
+        .site-box:hover {
+            filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.25));
+        }
+
+        .site-cdmx { 
+            stroke: var(--accent-blue); 
+            stroke-dasharray: 5, 5;
+            animation: dashMove 20s linear infinite;
+        }
+        .site-sur { 
+            stroke: var(--accent-orange);
+            stroke-dasharray: 8, 4;
+            animation: dashMove 15s linear infinite reverse;
+        }
+        .site-leon { 
+            stroke: var(--accent-green);
+            stroke-dasharray: 10, 6;
+            animation: dashMove 25s linear infinite;
+        }
+
+        @keyframes dashMove {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+
+        .site-title {
+            font-size: clamp(14px, 1.8vw, 20px);
+            font-weight: 800;
+            text-anchor: middle;
+            fill: var(--text-primary);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .server-box {
+            fill: rgba(255, 255, 255, 0.9);
+            stroke-width: 2.5;
+            rx: 12;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .server-box:hover {
+            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.25));
+            transform: scale(1.08) translateY(-2px);
+        }
+
+        .server-prod { 
+            stroke: var(--accent-red); 
+            fill: rgba(229, 62, 62, 0.1);
+            animation: pulse-red 3s ease-in-out infinite;
+        }
+        .server-dev { 
+            stroke: var(--accent-blue); 
+            fill: rgba(49, 130, 206, 0.1);
+            animation: pulse-blue 3s ease-in-out infinite 0.5s;
+        }
+        .server-drp { 
+            stroke: var(--accent-orange); 
+            fill: rgba(221, 107, 32, 0.1);
+            animation: pulse-orange 3s ease-in-out infinite 1s;
+        }
+        .server-new { 
+            stroke: var(--accent-green); 
+            fill: rgba(56, 161, 105, 0.1);
+            animation: pulse-green 3s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(229, 62, 62, 0); }
+        }
+
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(49, 130, 206, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(49, 130, 206, 0); }
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(221, 107, 32, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(221, 107, 32, 0); }
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(56, 161, 105, 0); }
+        }
+
+        .server-text {
+            font-size: clamp(9px, 1.3vw, 13px);
+            font-weight: 600;
+            text-anchor: middle;
+            fill: var(--text-primary);
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        .app-circle {
+            fill: rgba(255, 255, 255, 0.95);
+            stroke-width: 3;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .app-circle:hover {
+            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.3));
+            transform: scale(1.15);
+        }
+
+        .app-axel { 
+            stroke: var(--accent-red); 
+            fill: rgba(229, 62, 62, 0.1);
+        }
+        .app-insurance { 
+            stroke: var(--accent-purple); 
+            fill: rgba(128, 90, 213, 0.1);
+        }
+        .app-mesa { 
+            stroke: var(--accent-green); 
+            fill: rgba(56, 161, 105, 0.1);
+        }
+
+        .app-text {
+            font-size: clamp(10px, 1.3vw, 14px);
+            font-weight: 700;
+            text-anchor: middle;
+            fill: var(--text-primary);
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        .connection-line {
+            stroke-width: 3;
+            fill: none;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .connection-line:hover {
+            stroke-width: 5;
+            opacity: 1;
+        }
+
+        .connection-primary { 
+            stroke: var(--accent-red);
+            stroke-linecap: round;
+        }
+        .connection-secondary { 
+            stroke: var(--accent-blue);
+            stroke-linecap: round;
+        }
+        .connection-drp { 
+            stroke: var(--accent-orange); 
+            stroke-dasharray: 8, 4;
+            stroke-linecap: round;
+            animation: dashFlow 3s linear infinite;
+        }
+        .connection-future { 
+            stroke: var(--accent-green); 
+            stroke-dasharray: 12, 6;
+            stroke-linecap: round;
+            animation: dashFlow 2s linear infinite reverse;
+        }
+
+        @keyframes dashFlow {
+            to {
+                stroke-dashoffset: 100;
+            }
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 16px;
+            max-width: 450px;
+            display: none;
+            z-index: 1000;
+            box-shadow: var(--shadow-hard);
+            margin: 0 auto;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .info-panel h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-panel h3::before {
+            content: '🔍';
+            font-size: 1.2em;
+        }
+
+        .info-panel p {
+            font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.5;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .info-panel p::before {
+            content: '•';
+            color: var(--accent-blue);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            max-width: 250px;
+            word-wrap: break-word;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .user-icon {
+            fill: var(--accent-blue);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-icon:hover {
+            fill: var(--accent-purple);
+            transform: scale(1.2);
+        }
+
+        .cloud-icon {
+            fill: var(--accent-purple);
+            opacity: 0.8;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .status-indicator {
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .performance-metrics {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 150px;
+            z-index: 10;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .diagram-container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .header {
+                margin-bottom: 25px;
+            }
+
+            .controls {
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .control-btn {
+                padding: 12px 20px;
+                min-width: 120px;
+                font-size: 0.8rem;
+            }
+
+            .sidebar-container {
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .legend, .phase-indicator {
+                min-width: auto;
+                max-width: none;
+                padding: 16px;
+            }
+
+            .diagram-svg {
+                min-width: 700px;
+                min-height: 500px;
+            }
+
+            .info-panel {
+                bottom: 15px;
+                left: 15px;
+                right: 15px;
+                padding: 16px;
+                max-width: none;
+            }
+
+            .performance-metrics {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+        }
+
+        /* Tablet adjustments */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .diagram-container {
+                padding: 22px;
+            }
+
+            .diagram-svg {
+                min-width: 800px;
+                min-height: 550px;
+            }
+
+            .sidebar-container {
+                justify-content: space-around;
+            }
+
+            .legend, .phase-indicator {
+                min-width: 220px;
+                max-width: 280px;
+            }
+        }
+
+        /* Large screen adjustments */
+        @media (min-width: 1400px) {
+            .diagram-container {
+                padding: 35px;
+            }
+
+            .diagram-svg {
+                min-width: 1200px;
+                height: 800px;
+            }
+
+            .sidebar-container {
+                position: absolute;
+                top: 140px;
+                left: 35px;
+                right: 35px;
+                justify-content: space-between;
+                flex-wrap: nowrap;
+                margin-bottom: 0;
+            }
+
+            .legend {
+                position: static;
+                order: 2;
+            }
+
+            .phase-indicator {
+                position: static;
+                order: 1;
+            }
+
+            .info-panel {
+                position: absolute;
+                bottom: 25px;
+                left: 25px;
+                right: auto;
+                max-width: 350px;
+            }
+
+            .performance-metrics {
+                position: absolute;
+                bottom: 25px;
+                right: 35px;
+                max-width: 200px;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .diagram-container {
+                background: rgba(26, 32, 44, 0.95);
+                color: #e2e8f0;
+            }
+
+            .header h1 {
+                color: #e2e8f0;
+            }
+
+            .site-title,
+            .server-text,
+            .app-text {
+                fill: #000000 !important;
+            }
+
+            .legend-text,
+            .info-panel p {
+                color: #a0aec0;
+            }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+            .server-box,
+            .app-circle {
+                stroke-width: 4;
+            }
+
+            .connection-line {
+                stroke-width: 4;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <div class="performance-metrics" id="performanceMetrics">
+            <div class="metric-item">
+                <span>Servidores:</span>
+                <span class="metric-value" id="serverCount">4</span>
+            </div>
+            <div class="metric-item">
+                <span>Aplicaciones:</span>
+                <span class="metric-value" id="appCount">3</span>
+            </div>
+            <div class="metric-item">
+                <span>Conexiones:</span>
+                <span class="metric-value" id="connectionCount">7</span>
+            </div>
+            <div class="metric-item">
+                <span>Estado:</span>
+                <span class="metric-value" id="systemStatus">Operativo</span>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1>Diagrama de Infraestructura Prevem Seguros</h1>
+            <p>Situación Actual vs Plan DRP/BCP León</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn btn-current" onclick="showView('current')" data-view="current">
+                📍 Estado Actual
+            </button>
+            <button class="control-btn btn-future" onclick="showView('future')" data-view="future">
+                🎯 Plan Futuro
+            </button>
+            <button class="control-btn btn-both" onclick="showView('both')" data-view="both">
+                🔄 Migración Completa
+            </button>
+        </div>
+
+        <div class="sidebar-container">
+            <div class="phase-indicator" id="phaseIndicator">
+                <div class="phase-current">FASE ACTUAL</div>
+                <div style="color: var(--text-secondary); font-size: clamp(0.7rem, 1.5vw, 0.9rem); margin-top: 8px;">Assessment y Documentación</div>
+            </div>
+
+            <div class="legend">
+                <h3>🗂️ Leyenda</h3>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--accent-red);"></div>
+                    <span class="legend-text">Conexión Principal</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--accent-blue);"></div>
+                    <span class="legend-text">Conexión Secundaria</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: repeating-linear-gradient(90deg, var(--accent-orange) 0, var(--accent-orange) 8px, transparent 8px, transparent 12px);"></div>
+                    <span class="legend-text">Replicación DRP</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: repeating-linear-gradient(90deg, var(--accent-green) 0, var(--accent-green) 12px, transparent 12px, transparent 18px);"></div>
+                    <span class="legend-text">Plan Futuro</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--accent-purple);"></div>
+                    <span class="legend-text">Internet/Cloud</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel" id="infoPanel">
+            <h3 id="infoTitle">Información</h3>
+            <div id="infoContent"></div>
+            <button onclick="hideInfo()" style="margin-top: 10px; padding: 8px 16px; background: var(--accent-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">Cerrar</button>
+        </div>
+
+        <div class="diagram-wrapper">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <svg class="diagram-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <marker id="arrowhead" markerWidth="12" markerHeight="9" refX="11" refY="4.5" orient="auto">
+                        <polygon points="0 0, 12 4.5, 0 9" fill="var(--text-primary)" />
+                    </marker>
+                    <marker id="arrowhead-green" markerWidth="12" markerHeight="9" refX="11" refY="4.5" orient="auto">
+                        <polygon points="0 0, 12 4.5, 0 9" fill="var(--accent-green)" />
+                    </marker>
+                    <linearGradient id="serverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(248,250,252,0.9);stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge> 
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.1)"/>
+                    </filter>
+                </defs>
+
+                <!-- Background patterns -->
+                <defs>
+                    <pattern id="dots" patternUnits="userSpaceOnUse" width="20" height="20">
+                        <circle cx="10" cy="10" r="1" fill="rgba(102, 126, 234, 0.1)"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#dots)" opacity="0.3"/>
+
+                <!-- Internet Cloud -->
+                <g class="cloud-section">
+                    <ellipse cx="600" cy="50" rx="90" ry="30" class="cloud-icon" filter="url(#shadow)"/>
+                    <text x="600" y="58" class="site-title" style="font-size: 16px; fill: #000000; font-weight: 700;">☁️ Internet</text>
+                </g>
+
+                <!-- Ciudad de México - Matriz -->
+                <g class="site-cdmx-group" id="siteCDMX">
+                    <rect x="50" y="120" width="500" height="300" class="site-box site-cdmx" filter="url(#shadow)"/>
+                    <text x="300" y="145" class="site-title">🏢 Ciudad de México - Matriz</text>
+                    
+                    <!-- Servidor Producción X9 -->
+                    <g class="server-group" data-info="prod-server">
+                        <rect x="80" y="170" width="120" height="80" class="server-box server-prod" fill="url(#serverGradient)"/>
+                        <text x="140" y="190" class="server-text">🖥️ Servidor X9</text>
+                        <text x="140" y="205" class="server-text">PRODUCCIÓN</text>
+                        <text x="140" y="220" class="server-text">Oracle 19c</text>
+                        <text x="140" y="235" class="server-text">Axel Core</text>
+                        <circle cx="190" cy="180" r="4" class="status-indicator" fill="var(--accent-green)"/>
+                    </g>
+
+                    <!-- Servidor Desarrollo X9 -->
+                    <g class="server-group" data-info="dev-server">
+                        <rect x="220" y="170" width="120" height="80" class="server-box server-dev" fill="url(#serverGradient)"/>
+                        <text x="280" y="190" class="server-text">🖥️ Servidor X9</text>
+                        <text x="280" y="205" class="server-text">DEV/QA</text>
+                        <text x="280" y="220" class="server-text">Oracle 19c</text>
+                        <text x="280" y="235" class="server-text">Testing</text>
+                        <circle cx="330" cy="180" r="4" class="status-indicator" fill="var(--accent-blue)"/>
+                    </g>
+
+                    <!-- Servidores de Aplicaciones -->
+                    <g class="app-servers">
+                        <rect x="360" y="170" width="100" height="60" class="server-box" style="stroke: var(--accent-green); fill: url(#serverGradient);"/>
+                        <text x="410" y="190" class="server-text">🖥️ App Servers</text>
+                        <text x="410" y="205" class="server-text">Windows</text>
+                        <text x="410" y="220" class="server-text">Insurance/Mesa</text>
+                        <circle cx="450" cy="180" r="4" class="status-indicator" fill="var(--accent-green)"/>
+                    </g>
+
+                    <!-- Aplicaciones -->
+                    <g class="applications-cdmx">
+                        <circle cx="140" cy="320" r="35" class="app-circle app-axel" data-info="axel-app" filter="url(#shadow)"/>
+                        <text x="140" y="325" class="app-text">AXEL</text>
+                        
+                        <circle cx="240" cy="320" r="35" class="app-circle app-insurance" data-info="insurance-app" filter="url(#shadow)"/>
+                        <text x="240" y="318" class="app-text" style="font-size: 11px;">Insurance</text>
+                        <text x="240" y="330" class="app-text" style="font-size: 11px;">(Siniestros)</text>
+                        
+                        <circle cx="340" cy="320" r="35" class="app-circle app-mesa" data-info="mesa-app" filter="url(#shadow)"/>
+                        <text x="340" y="318" class="app-text" style="font-size: 11px;">Mesa</text>
+                        <text x="340" y="330" class="app-text" style="font-size: 11px;">Control</text>
+                    </g>
+
+                    <!-- Usuarios -->
+                    <g class="users-group">
+                        <text x="460" y="290" class="server-text">👥 Usuarios</text>
+                        <circle cx="440" cy="310" r="8" class="user-icon" data-info="users-internal"/>
+                        <circle cx="460" cy="310" r="8" class="user-icon" data-info="users-internal"/>
+                        <circle cx="480" cy="310" r="8" class="user-icon" data-info="users-internal"/>
+                        <text x="460" y="340" class="app-text">VPN/Web Access</text>
+                    </g>
+                </g>
+
+                <!-- San Jerónimo - DRP Actual -->
+                <g class="site-sur-group" id="siteSur">
+                    <rect x="50" y="480" width="350" height="150" class="site-box site-sur" filter="url(#shadow)"/>
+                    <text x="225" y="505" class="site-title">🏢 San Jerónimo - DRP Actual</text>
+                    
+                    <!-- Servidor X7 DRP -->
+                    <g class="server-group" data-info="drp-current">
+                        <rect x="80" y="530" width="120" height="70" class="server-box server-drp" fill="url(#serverGradient)"/>
+                        <text x="140" y="550" class="server-text">🖥️ Servidor X7</text>
+                        <text x="140" y="565" class="server-text">DRP ACTUAL</text>
+                        <text x="140" y="580" class="server-text">Oracle Replica</text>
+                        <text x="140" y="595" class="server-text">Standby</text>
+                        <circle cx="190" cy="540" r="4" class="status-indicator" fill="var(--accent-orange)"/>
+                    </g>
+
+                    <!-- Status DRP -->
+                    <g>
+                        <text x="250" y="540" class="server-text">📊 Estado:</text>
+                        <text x="250" y="555" class="server-text">Replicando</text>
+                        <text x="250" y="575" class="server-text">⚠️ Capacidad</text>
+                        <text x="250" y="590" class="server-text">Limitada</text>
+                    </g>
+                </g>
+
+                <!-- León - Plan Futuro -->
+                <g class="site-leon-group" id="siteLeon" style="opacity: 0.5;">
+                    <rect x="650" y="200" width="500" height="400" class="site-box site-leon" filter="url(#shadow)"/>
+                    <text x="900" y="225" class="site-title">🎯 León - Plan DRP/BCP</text>
+                    
+                    <!-- Nuevos Servidores León -->
+                    <g class="server-group" data-info="leon-new">
+                        <rect x="680" y="260" width="140" height="90" class="server-box server-new" fill="url(#serverGradient)"/>
+                        <text x="750" y="280" class="server-text">🖥️ Servidores Nuevos</text>
+                        <text x="750" y="295" class="server-text">DRP PRINCIPAL</text>
+                        <text x="750" y="310" class="server-text">Oracle 19c</text>
+                        <text x="750" y="325" class="server-text">Alta Capacidad</text>
+                        <text x="750" y="340" class="server-text">Dell (Polo Deal)</text>
+                        <circle cx="810" cy="270" r="4" class="status-indicator" fill="var(--accent-green)" style="opacity: 0.5;"/>
+                    </g>
+
+                    <!-- Aplicaciones Replicadas -->
+                    <g class="applications-leon">
+                        <circle cx="750" cy="400" r="40" class="app-circle app-axel" data-info="axel-leon" filter="url(#shadow)"/>
+                        <text x="750" y="403" class="app-text" style="font-size: 11px;">AXEL</text>
+                        <text x="750" y="415" class="app-text" style="font-size: 10px;">REPLICA</text>
+                        
+                        <circle cx="850" cy="400" r="40" class="app-circle app-insurance" data-info="insurance-leon" filter="url(#shadow)"/>
+                        <text x="850" y="398" class="app-text" style="font-size: 10px;">Insurance</text>
+                        <text x="850" y="410" class="app-text" style="font-size: 10px;">REPLICA</text>
+                        
+                        <circle cx="950" cy="400" r="40" class="app-circle app-mesa" data-info="mesa-leon" filter="url(#shadow)"/>
+                        <text x="950" y="398" class="app-text" style="font-size: 11px;">Mesa</text>
+                        <text x="950" y="410" class="app-text" style="font-size: 10px;">REPLICA</text>
+                    </g>
+
+                    <!-- Conectividad León -->
+                    <g class="connectivity-leon">
+                        <rect x="680" y="480" width="200" height="60" class="server-box" style="stroke: var(--accent-purple); fill: url(#serverGradient);"/>
+                        <text x="780" y="505" class="server-text">🌐 Conectividad</text>
+                        <text x="780" y="520" class="server-text">Enlace Dedicado</text>
+                        <text x="780" y="535" class="server-text">(Por Contratar)</text>
+                    </g>
+
+                    <!-- Características BCP -->
+                    <g class="bcp-features">
+                        <text x="900" y="260" class="server-text" style="font-weight: bold; fill: var(--accent-green);">✅ Características BCP:</text>
+                        <text x="900" y="275" class="server-text">• Continuidad Total</text>
+                        <text x="900" y="290" class="server-text">• Failover Automático</text>
+                        <text x="900" y="305" class="server-text">• Reverse Proxy</text>
+                        <text x="900" y="320" class="server-text">• Cumplimiento CNSF</text>
+                        <text x="900" y="335" class="server-text">• Performance Escalable</text>
+                    </g>
+                </g>
+
+                <!-- Conexiones Actuales -->
+                <g class="connections-current" id="currentConnections">
+                    <path d="M600,75 Q450,90 300,120" class="connection-line connection-primary" style="animation-delay: 0.5s;" marker-end="url(#arrowhead)"/>
+                    <line x1="140" y1="250" x2="140" y2="295" class="connection-line connection-primary" style="animation-delay: 1s;" marker-end="url(#arrowhead)"/>
+                    <path d="M200,210 Q220,250 240,295" class="connection-line connection-secondary" style="animation-delay: 1.2s;" marker-end="url(#arrowhead)"/>
+                    <path d="M360,200 Q350,250 340,295" class="connection-line connection-secondary" style="animation-delay: 1.4s;" marker-end="url(#arrowhead)"/>
+                    <path d="M440,310 Q400,315 365,320" class="connection-line connection-secondary" style="animation-delay: 1.6s;" marker-end="url(#arrowhead)"/>
+                    <path d="M140,250 Q90,350 140,530" class="connection-line connection-drp" style="animation-delay: 2s;" marker-end="url(#arrowhead)"/>
+                </g>
+
+                <!-- Conexiones Futuras -->
+                <g class="connections-future" id="futureConnections" style="opacity: 0;">
+                    <path d="M550,300 Q600,280 650,300" class="connection-line connection-future" marker-end="url(#arrowhead-green)"/>
+                    <path d="M200,210 Q450,180 750,260" class="connection-line connection-future" marker-end="url(#arrowhead-green)"/>
+                    <path d="M600,75 Q750,100 900,200" class="connection-line connection-future" marker-end="url(#arrowhead-green)"/>
+                    <line x1="750" y1="350" x2="750" y2="370" class="connection-line connection-future"/>
+                    <path d="M750,350 Q800,360 850,370" class="connection-line connection-future"/>
+                    <path d="M750,350 Q850,360 950,370" class="connection-line connection-future"/>
+                </g>
+
+                <!-- Indicadores de flujo de datos -->
+                <g class="data-flow" id="dataFlow">
+                    <circle r="3" fill="var(--accent-blue)" opacity="0.8">
+                        <animateMotion dur="3s" repeatCount="indefinite" path="M140,250 Q90,350 140,530"/>
+                    </circle>
+                    <circle r="2" fill="var(--accent-red)" opacity="0.6">
+                        <animateMotion dur="2s" repeatCount="indefinite" path="M140,250 L140,295"/>
+                    </circle>
+                </g>
+
+                <!-- Etiquetas de Fases -->
+                <g class="phase-labels">
+                    <rect x="400" y="450" width="120" height="35" rx="18" style="fill: var(--success-gradient); opacity: 0.9;" filter="url(#shadow)"/>
+                    <text x="460" y="472" class="app-text" style="fill: white !important; font-weight: bold; font-size: 12px;">FASE ACTUAL</text>
+                    
+                    <rect x="1030" y="250" width="120" height="35" rx="18" style="fill: var(--warning-gradient); opacity: 0.9;" filter="url(#shadow)"/>
+                    <text x="1090" y="272" class="app-text" style="fill: white !important; font-weight: bold; font-size: 12px;">FASE OBJETIVO</text>
+                </g>
+
+                <!-- Grid de monitoreo -->
+                <g class="monitoring-grid" id="monitoringGrid" style="opacity: 0;">
+                    <defs>
+                        <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="var(--accent-blue)" stroke-width="0.5" opacity="0.3"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script>
+        let currentView = 'current';
+        let animationQueue = [];
+        let isAnimating = false;
+
+        // Información detallada de cada componente con métricas mejoradas
+        const componentInfo = {
+            'prod-server': {
+                title: '🖥️ Servidor Producción X9',
+                content: [
+                    '• Modelo: Dell/HP X9 (Actualizado 2024)',
+                    '• CPU: Intel Xeon Silver 4314, 32GB RAM',
+                    '• Storage: SSD NVMe 1TB + HDD 4TB',
+                    '• Función: Oracle 19c Producción',
+                    '• Sistema: Axel Core Business',
+                    '• Uptime: 99.8% (último año)',
+                    '• Load promedio: 65%',
+                    '• Estado: Operativo 24/7',
+                    '• Backup: Diario automático',
+                    '• Criticidad: CRÍTICA'
+                ]
+            },
+            'dev-server': {
+                title: '🖥️ Servidor Desarrollo X9',
+                content: [
+                    '• Modelo: Dell/HP X9',
+                    '• CPU: Intel Xeon Bronze 3204, 16GB RAM',
+                    '• Storage: SSD 500GB + HDD 2TB',
+                    '• Ambientes: DEV, QA, TEST, UAT',
+                    '• Base: Oracle 19c segmentada',
+                    '• Uso: Desarrollo y pruebas',
+                    '• Load promedio: 45%',
+                    '• Estado: Operativo horario laboral',
+                    '• Backup: Semanal',
+                    '• Criticidad: MEDIA'
+                ]
+            },
+            'drp-current': {
+                title: '🖥️ DRP Actual (X7)',
+                content: [
+                    '• Modelo: HP ProLiant DL380 G9 (Legacy)',
+                    '• CPU: Intel Xeon E5-2620 v3, 8GB RAM',
+                    '• Storage: HDD 1TB (limitado)',
+                    '• Ubicación: San Jerónimo (25km CDMX)',
+                    '• Función: Disaster Recovery',
+                    '• Replicación: Oracle Data Guard',
+                    '• RTO estimado: 4-6 horas',
+                    '• RPO: 15 minutos',
+                    '• Limitación: Capacidad 40% vs producción',
+                    '• Estado: Standby activo',
+                    '• Plan: Migrar a León Q3 2025'
+                ]
+            },
+            'leon-new': {
+                title: '🎯 Servidores León (Nuevo)',
+                content: [
+                    '• Modelo: Dell PowerEdge R750 (Deal Polo)',
+                    '• CPU: Intel Xeon Gold 6334, 64GB RAM',
+                    '• Storage: NVMe 2TB + SAS 8TB',
+                    '• Función: DRP/BCP Principal',
+                    '• Capacidad: 150% vs actual',
+                    '• Oracle: 19c con réplica sincronizada',
+                    '• RTO objetivo: < 30 minutos',
+                    '• RPO objetivo: < 5 minutos',
+                    '• Automatización: Failover completo',
+                    '• Conectividad: Fibra dedicada 1Gbps',
+                    '• Estado: En cotización/planeación',
+                    '• Timeline: Q2-Q4 2025'
+                ]
+            },
+            'axel-app': {
+                title: '💼 Sistema Axel',
+                content: [
+                    '• Tipo: ERP Core Insurance (Oracle Forms)',
+                    '• Función: Emisión, cotización, cobranza',
+                    '• Módulos: Pólizas, endosos, renovaciones',
+                    '• Forms & Reports: 150+ formularios',
+                    '• Base: Oracle 19c (45GB datos)',
+                    '• Usuarios concurrentes: 25-30',
+                    '• Horario: 24/7 (soporte call center)',
+                    '• Integración: SOAP/REST APIs',
+                    '• Backup: Tiempo real + snapshot',
+                    '• SLA: 99.5% disponibilidad',
+                    '• Criticidad: CRÍTICA'
+                ]
+            },
+            'insurance-app': {
+                title: '🚨 Sistema Insurance (Siniestros)',
+                content: [
+                    '• Función: Gestión integral siniestros',
+                    '• Tecnología: .NET Core + SQL Server',
+                    '• Tipo: Aplicación web responsive',
+                    '• Servidor: Windows Server 2019',
+                    '• Acceso: HTTPS público + VPN corporativa',
+                    '• Usuarios: Ajustadores, peritos, call center',
+                    '• Integración: APIs con Axel core',
+                    '• Documentos: Azure Blob Storage',
+                    '• Performance: < 2s tiempo respuesta',
+                    '• Backup: Diario automático',
+                    '• Criticidad: CRÍTICA'
+                ]
+            },
+            'mesa-app': {
+                title: '📞 Mesa de Control',
+                content: [
+                    '• Función: Control administrativo operativo',
+                    '• Tecnología: PHP Laravel + MySQL',
+                    '• Tipo: Sistema web interno',
+                    '• Servidor: Linux Ubuntu + Apache',
+                    '• Acceso: VPN corporativa únicamente',
+                    '• Módulos: Tickets, folios, reportes',
+                    '• Seguimiento: Procesos, tiempos, SLAs',
+                    '• Usuarios: Staff administrativo (8-10)',
+                    '• Horario: Horario laboral',
+                    '• Backup: Semanal',
+                    '• Criticidad: MEDIA'
+                ]
+            },
+            'users-internal': {
+                title: '👥 Usuarios del Sistema',
+                content: [
+                    '• Total activos: 45 usuarios',
+                    '• Emisión y cobranza: 15 usuarios',
+                    '• Siniestros y claims: 12 usuarios',
+                    '• Mesa de control: 8 usuarios',
+                    '• Gerencia y reportes: 10 usuarios',
+                    '• Acceso: VPN/Web según aplicación',
+                    '• Dispositivos: Windows 10/11 + tablets',
+                    '• Contingencia: Trabajo remoto habilitado',
+                    '• Soporte: Scenario café (Starbucks WiFi)',
+                    '• Capacitación DRP: Programada Q2 2025'
+                ]
+            },
+            'axel-leon': {
+                title: '💼 Axel León (Futuro)',
+                content: [
+                    '• Réplica completa del sistema core',
+                    '• Sincronización: Tiempo real',
+                    '• Failover: Automático < 30 min',
+                    '• Performance: Equivalente o superior',
+                    '• Continuidad: Sin pérdida datos',
+                    '• Load balancer: HAProxy configurado',
+                    '• Monitoreo: Nagios + Grafana',
+                    '• Cumplimiento: CNSF + CNBV',
+                    '• Testing: Trimestral programado',
+                    '• Estado: Arquitectura definida'
+                ]
+            },
+            'insurance-leon': {
+                title: '🚨 Insurance León (Futuro)',
+                content: [
+                    '• Sistema completamente replicado',
+                    '• Base datos: Replica sincronizada',
+                    '• Archivos: Sincronización Azure',
+                    '• Misma funcionalidad y performance',
+                    '• Reverse proxy: Nginx configurado',
+                    '• URL: Transparente para usuarios',
+                    '• Failover: Automático DNS',
+                    '• Testing: Mensual programado',
+                    '• Estado: Diseño técnico completo'
+                ]
+            },
+            'mesa-leon': {
+                title: '📞 Mesa León (Futuro)',
+                content: [
+                    '• Sistema administrativo replicado',
+                    '• Base datos: MySQL replica master-slave',
+                    '• Acceso: VPN León independiente',
+                    '• Funcionalidad: 100% equivalente',
+                    '• Reportes: Consolidación automática',
+                    '• Backup: Independiente CDMX',
+                    '• Usuarios: Mismo directorio activo',
+                    '• Estado: Análisis de requerimientos'
+                ]
+            }
+        };
+
+        // Métricas del sistema en tiempo real
+        const systemMetrics = {
+            servers: { current: 4, target: 6 },
+            applications: { current: 3, target: 3 },
+            connections: { current: 7, target: 12 },
+            uptime: 99.8,
+            performance: 85
+        };
+
+        // Función mejorada para cambiar vista con animaciones
+        function showView(view) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            showLoadingOverlay(true);
+            
+            setTimeout(() => {
+                currentView = view;
+                updateViewElements(view);
+                updateMetrics(view);
+                playViewTransition(view);
+                
+                setTimeout(() => {
+                    showLoadingOverlay(false);
+                    isAnimating = false;
+                }, 800);
+            }, 300);
+        }
+
+        function updateViewElements(view) {
+            const currentConnections = document.getElementById('currentConnections');
+            const futureConnections = document.getElementById('futureConnections');
+            const siteLeon = document.getElementById('siteLeon');
+            const siteCDMX = document.getElementById('siteCDMX');
+            const siteSur = document.getElementById('siteSur');
+            const phaseIndicator = document.getElementById('phaseIndicator');
+            const monitoringGrid = document.getElementById('monitoringGrid');
+
+            // Reset button states
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.style.opacity = '0.7';
+                btn.style.transform = 'scale(1)';
+                btn.classList.remove('active');
+            });
+
+            // Apply view-specific styles
+            switch(view) {
+                case 'current':
+                    siteCDMX.style.opacity = '1';
+                    siteSur.style.opacity = '1';
+                    siteLeon.style.opacity = '0.3';
+                    currentConnections.style.opacity = '1';
+                    futureConnections.style.opacity = '0';
+                    monitoringGrid.style.opacity = '0';
+                    
+                    phaseIndicator.innerHTML = `
+                        <div class="phase-current">ESTADO ACTUAL</div>
+                        <div style="color: var(--accent-red); font-size: clamp(0.7rem, 1.5vw, 0.9rem); margin-top: 8px; font-weight: 600;">Operación en CDMX + DRP San Jerónimo</div>
+                    `;
+                    
+                    document.querySelector('[data-view="current"]').style.opacity = '1';
+                    document.querySelector('[data-view="current"]').style.transform = 'scale(1.1)';
+                    document.querySelector('[data-view="current"]').classList.add('active');
+                    break;
+
+                case 'future':
+                    siteCDMX.style.opacity = '0.4';
+                    siteSur.style.opacity = '0.3';
+                    siteLeon.style.opacity = '1';
+                    currentConnections.style.opacity = '0.3';
+                    futureConnections.style.opacity = '1';
+                    monitoringGrid.style.opacity = '0.2';
+                    
+                    phaseIndicator.innerHTML = `
+                        <div class="phase-future">PLAN OBJETIVO</div>
+                        <div style="color: var(--accent-green); font-size: clamp(0.7rem, 1.5vw, 0.9rem); margin-top: 8px; font-weight: 600;">DRP/BCP Completo en León</div>
+                    `;
+                    
+                    document.querySelector('[data-view="future"]').style.opacity = '1';
+                    document.querySelector('[data-view="future"]').style.transform = 'scale(1.1)';
+                    document.querySelector('[data-view="future"]').classList.add('active');
+                    break;
+
+                case 'both':
+                    siteCDMX.style.opacity = '1';
+                    siteSur.style.opacity = '0.7';
+                    siteLeon.style.opacity = '1';
+                    currentConnections.style.opacity = '0.6';
+                    futureConnections.style.opacity = '1';
+                    monitoringGrid.style.opacity = '0.3';
+                    
+                    phaseIndicator.innerHTML = `
+                        <div style="background: var(--secondary-gradient); color: white; padding: 12px 20px; border-radius: 25px; font-weight: 700; margin-bottom: 15px; text-align: center; font-size: clamp(0.9rem, 1.8vw, 1.1rem); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">MIGRACIÓN COMPLETA</div>
+                        <div style="color: var(--accent-purple); font-size: clamp(0.7rem, 1.5vw, 0.9rem); margin-top: 8px; font-weight: 600;">Estado Actual → Plan León</div>
+                    `;
+                    
+                    document.querySelector('[data-view="both"]').style.opacity = '1';
+                    document.querySelector('[data-view="both"]').style.transform = 'scale(1.1)';
+                    document.querySelector('[data-view="both"]').classList.add('active');
+                    
+                    animateFutureConnections();
+                    break;
+            }
+        }
+
+        function updateMetrics(view) {
+            const serverCount = document.getElementById('serverCount');
+            const appCount = document.getElementById('appCount');
+            const connectionCount = document.getElementById('connectionCount');
+            const systemStatus = document.getElementById('systemStatus');
+
+            switch(view) {
+                case 'current':
+                    animateCounter(serverCount, 4);
+                    animateCounter(appCount, 3);
+                    animateCounter(connectionCount, 7);
+                    systemStatus.textContent = 'Operativo';
+                    systemStatus.style.color = 'var(--accent-green)';
+                    break;
+                case 'future':
+                    animateCounter(serverCount, 6);
+                    animateCounter(appCount, 3);
+                    animateCounter(connectionCount, 12);
+                    systemStatus.textContent = 'Planeado';
+                    systemStatus.style.color = 'var(--accent-orange)';
+                    break;
+                case 'both':
+                    animateCounter(serverCount, 4, 6);
+                    animateCounter(appCount, 3);
+                    animateCounter(connectionCount, 7, 12);
+                    systemStatus.textContent = 'Migración';
+                    systemStatus.style.color = 'var(--accent-purple)';
+                    break;
+            }
+        }
+
+        function animateCounter(element, startValue, endValue = null) {
+            const end = endValue || startValue;
+            const start = parseInt(element.textContent) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.round(start + (end - start) * progress);
+                
+                element.textContent = endValue ? `${current}→${end}` : current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        function playViewTransition(view) {
+            const elements = document.querySelectorAll('.server-group, .app-circle');
+            elements.forEach((element, index) => {
+                element.style.animation = `fadeInScale 0.6s ease ${index * 0.1}s both`;
+            });
+        }
+
+        function animateFutureConnections() {
+            const futureLines = document.querySelectorAll('#futureConnections .connection-line');
+            futureLines.forEach((line, index) => {
+                line.style.strokeDasharray = '1000';
+                line.style.strokeDashoffset = '1000';
+                line.style.animation = `drawLine 2s ease-in-out ${index * 0.3}s forwards`;
+            });
+        }
+
+        function showLoadingOverlay(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Funciones de interactividad mejoradas
+        function showInfo(infoKey) {
+            const info = componentInfo[infoKey];
+            if (info) {
+                const infoPanel = document.getElementById('infoPanel');
+                const infoTitle = document.getElementById('infoTitle');
+                const infoContent = document.getElementById('infoContent');
+                
+                infoTitle.textContent = info.title;
+                infoContent.innerHTML = info.content.map(item => `<p>${item}</p>`).join('');
+                infoPanel.style.display = 'block';
+                infoPanel.style.animation = 'slideInUp 0.3s ease-out';
+            }
+        }
+
+        function hideInfo() {
+            const infoPanel = document.getElementById('infoPanel');
+            infoPanel.style.animation = 'slideOutDown 0.3s ease-in';
+            setTimeout(() => {
+                infoPanel.style.display = 'none';
+            }, 300);
+        }
+
+        // Event listeners mejorados
+        function setupInteractivity() {
+            document.querySelectorAll('[data-info]').forEach(element => {
+                // Mouse events para desktop
+                element.addEventListener('mouseenter', (e) => {
+                    if (window.matchMedia('(hover: hover)').matches) {
+                        const infoKey = e.target.closest('[data-info]').getAttribute('data-info');
+                        showInfo(infoKey);
+                        element.style.filter = 'brightness(1.1) drop-shadow(0 8px 25px rgba(0, 0, 0, 0.3))';
+                    }
+                });
+
+                element.addEventListener('mouseleave', (e) => {
+                    if (window.matchMedia('(hover: hover)').matches) {
+                        hideInfo();
+                        element.style.filter = '';
+                    }
+                });
+
+                // Touch events para móvil
+                element.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const infoKey = e.target.closest('[data-info]').getAttribute('data-info');
+                    showInfo(infoKey);
+                    
+                    // Feedback háptico si está disponible
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                });
+
+                // Click para interacción alternativa
+                element.addEventListener('click', (e) => {
+                    if (window.matchMedia('(hover: none)').matches) {
+                        e.preventDefault();
+                        const panel = document.getElementById('infoPanel');
+                        if (panel.style.display === 'block') {
+                            hideInfo();
+                        } else {
+                            const infoKey = e.target.closest('[data-info]').getAttribute('data-info');
+                            showInfo(infoKey);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Tooltip avanzado solo para desktop
+        function setupTooltips() {
+            if (!window.matchMedia('(hover: hover)').matches) return;
+
+            const tooltip = document.getElementById('tooltip');
+            
+            document.querySelectorAll('[data-info]').forEach(element => {
+                element.addEventListener('mousemove', (e) => {
+                    const infoKey = e.target.closest('[data-info]').getAttribute('data-info');
+                    const info = componentInfo[infoKey];
+                    
+                    if (info) {
+                        tooltip.textContent = info.title;
+                        
+                        const rect = element.getBoundingClientRect();
+                        const tooltipRect = tooltip.getBoundingClientRect();
+                        
+                        let left = e.clientX + 15;
+                        let top = e.clientY - tooltipRect.height - 10;
+                        
+                        // Ajustar posición si se sale de la ventana
+                        if (left + tooltipRect.width > window.innerWidth) {
+                            left = e.clientX - tooltipRect.width - 15;
+                        }
+                        if (top < 0) {
+                            top = e.clientY + 15;
+                        }
+                        
+                        tooltip.style.left = left + 'px';
+                        tooltip.style.top = top + 'px';
+                        tooltip.style.opacity = '1';
+                    }
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+            });
+        }
+
+        // Simulación de datos en tiempo real mejorada
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                updateSystemStatus();
+                updateConnectionFlow();
+            }, 3000);
+        }
+
+        function updateSystemStatus() {
+            const indicators = document.querySelectorAll('.status-indicator');
+            indicators.forEach(indicator => {
+                // Simular cambios ocasionales de estado
+                if (Math.random() < 0.1) {
+                    const currentColor = indicator.getAttribute('fill');
+                    indicator.style.opacity = '0.3';
+                    
+                    setTimeout(() => {
+                        indicator.style.opacity = '1';
+                        // Opcional: cambiar color para simular alertas
+                        if (Math.random() < 0.05) {
+                            indicator.setAttribute('fill', 'var(--accent-orange)');
+                            setTimeout(() => {
+                                indicator.setAttribute('fill', currentColor);
+                            }, 2000);
+                        }
+                    }, 500);
+                }
+            });
+        }
+
+        function updateConnectionFlow() {
+            const dataFlow = document.getElementById('dataFlow');
+            if (dataFlow && currentView !== 'current') return;
+            
+            // Agregar partículas de datos ocasionalmente
+            if (Math.random() < 0.3) {
+                createDataParticle();
+            }
+        }
+
+        function createDataParticle() {
+            const svg = document.querySelector('.diagram-svg');
+            const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            
+            particle.setAttribute('r', '2');
+            particle.setAttribute('fill', `var(--accent-${['blue', 'green', 'purple'][Math.floor(Math.random() * 3)]})`);
+            particle.setAttribute('opacity', '0.8');
+            
+            const paths = [
+                'M140,250 Q90,350 140,530',
+                'M140,250 L140,295',
+                'M240,295 Q280,310 320,320'
+            ];
+            
+            const randomPath = paths[Math.floor(Math.random() * paths.length)];
+            
+            const animateMotion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+            animateMotion.setAttribute('dur', `${2 + Math.random() * 2}s`);
+            animateMotion.setAttribute('path', randomPath);
+            animateMotion.setAttribute('begin', '0s');
+            
+            particle.appendChild(animateMotion);
+            
+            const animateOpacity = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+            animateOpacity.setAttribute('attributeName', 'opacity');
+            animateOpacity.setAttribute('values', '0;0.8;0');
+            animateOpacity.setAttribute('dur', `${2 + Math.random() * 2}s`);
+            
+            particle.appendChild(animateOpacity);
+            svg.appendChild(particle);
+            
+            // Limpiar después de la animación
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 5000);
+        }
+
+        // Funciones de exportación mejoradas
+        function exportDiagram(format = 'png') {
+            showLoadingOverlay(true);
+            
+            setTimeout(() => {
+                const svg = document.querySelector('.diagram-svg');
+                const svgData = new XMLSerializer().serializeToString(svg);
+                
+                if (format === 'svg') {
+                    downloadSVG(svgData);
+                } else {
+                    exportToPNG(svgData);
+                }
+                
+                showLoadingOverlay(false);
+            }, 500);
+        }
+
+        function exportToPNG(svgData) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            canvas.width = 1600;
+            canvas.height = 1000;
+            
+            img.onload = function() {
+                // Fondo blanco
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Dibujar SVG
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Agregar marca de agua
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.font = '16px Inter';
+                ctx.textAlign = 'right';
+                ctx.fillText(`Prevén - ${currentView.toUpperCase()} - ${new Date().toLocaleDateString()}`, 
+                            canvas.width - 20, canvas.height - 20);
+                
+                const pngFile = canvas.toDataURL('image/png', 0.95);
+                
+                const downloadLink = document.createElement('a');
+                downloadLink.download = `Arquitectura_Preven_${currentView}_${Date.now()}.png`;
+                downloadLink.href = pngFile;
+                downloadLink.click();
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+        }
+
+        function downloadSVG(svgData) {
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `Arquitectura_Preven_${currentView}_${Date.now()}.svg`;
+            downloadLink.href = url;
+            downloadLink.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Funciones de análisis y estadísticas
+        function showAdvancedStats() {
+            const stats = {
+                'Infraestructura Actual': {
+                    'Servidores Físicos': '4 (2 X9 CDMX + 1 X7 SJ + 1 App)',
+                    'Capacidad Total RAM': '56 GB distribuidos',
+                    'Almacenamiento': '~8 TB (HDD/SSD mixto)',
+                    'Aplicaciones Críticas': '3 (Axel, Insurance, Mesa)',
+                    'Usuarios Activos': '45 distribuidos',
+                    'Uptime Promedio': '99.2% (último trimestre)'
+                },
+                'Plan León - Mejoras': {
+                    'Nuevos Servidores': '2 Dell R750 (alta capacidad)',
+                    'Increment RAM': '+64 GB (118% incremento)',
+                    'Storage Upgrade': 'NVMe + SAS (300% mejora)',
+                    'RTO Mejora': '4-6h → <30min (85% reducción)',
+                    'RPO Mejora': '15min → <5min (66% reducción)',
+                    'Automatización': 'Manual → Automático'
+                },
+                'Inversión Estimada': {
+                    'Hardware (Polo Deal)': '$180,000 - $220,000 USD',
+                    'Software Licencias': '$45,000 - $60,000 USD',
+                    'Conectividad Anual': '$24,000 USD',
+                    'Implementación': '$35,000 - $50,000 USD',
+                    'Total Proyecto': '$284,000 - $354,000 USD'
+                },
+                'Timeline Q2-Q4 2025': {
+                    'Q2 2025': 'Compra equipos + diseño detallado',
+                    'Q3 2025': 'Instalación + configuración',
+                    'Q4 2025': 'Testing + go-live + documentación',
+                    'Q1 2026': 'Optimización + training usuario'
+                }
+            };
+            
+            console.group('📊 Análisis Completo - Arquitectura Prevén');
+            Object.entries(stats).forEach(([category, items]) => {
+                console.group(`${category}:`);
+                Object.entries(items).forEach(([key, value]) => {
+                    console.log(`${key}: ${value}`);
+                });
+                console.groupEnd();
+            });
+            console.groupEnd();
+            
+            // Mostrar también en UI para móviles
+            if (window.innerWidth < 768) {
+                showInfo('system-stats');
+            }
+        }
+
+        // Keyboard shortcuts mejorados
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Prevenir shortcuts si hay un modal abierto
+                if (document.getElementById('infoPanel').style.display === 'block' && e.key === 'Escape') {
+                    hideInfo();
+                    return;
+                }
+                
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            exportDiagram('png');
+                            break;
+                        case 'e':
+                            e.preventDefault();
+                            exportDiagram('svg');
+                            break;
+                        case 'd':
+                            e.preventDefault();
+                            showAdvancedStats();
+                            break;
+                    }
+                }
+                
+                // Navegación rápida
+                switch(e.key) {
+                    case '1':
+                        showView('current');
+                        break;
+                    case '2':
+                        showView('future');
+                        break;
+                    case '3':
+                        showView('both');
+                        break;
+                    case 'h':
+                        showKeyboardHelp();
+                        break;
+                }
+            });
+        }
+
+        function showKeyboardHelp() {
+            const helpContent = `
+                <h3>⌨️ Atajos de Teclado</h3>
+                <p><strong>1</strong> - Estado Actual</p>
+                <p><strong>2</strong> - Plan Futuro</p>
+                <p><strong>3</strong> - Migración Completa</p>
+                <p><strong>Ctrl+S</strong> - Exportar PNG</p>
+                <p><strong>Ctrl+E</strong> - Exportar SVG</p>
+                <p><strong>Ctrl+D</strong> - Estadísticas Avanzadas</p>
+                <p><strong>H</strong> - Mostrar esta ayuda</p>
+                <p><strong>Esc</strong> - Cerrar paneles</p>
+            `;
+            
+            const infoPanel = document.getElementById('infoPanel');
+            const infoTitle = document.getElementById('infoTitle');
+            const infoContent = document.getElementById('infoContent');
+            
+            infoTitle.textContent = 'Ayuda';
+            infoContent.innerHTML = helpContent;
+            infoPanel.style.display = 'block';
+        }
+
+        // Inicialización completa
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Diagrama Interactivo Prevén - Versión Avanzada');
+            
+            // Configurar todas las funcionalidades
+            setupInteractivity();
+            setupTooltips();
+            setupKeyboardShortcuts();
+            startRealTimeUpdates();
+            
+            // Mostrar vista inicial
+            showView('current');
+            
+            // Efectos de entrada escalonados
+            setTimeout(() => {
+                document.querySelectorAll('.server-group, .app-circle').forEach((element, index) => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(20px)';
+                    element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }, index * 150);
+                });
+            }, 800);
+
+            // Click fuera del panel para cerrar
+            document.addEventListener('click', function(e) {
+                const infoPanel = document.getElementById('infoPanel');
+                const isClickInside = infoPanel.contains(e.target) || e.target.closest('[data-info]');
+                
+                if (!isClickInside && infoPanel.style.display === 'block') {
+                    hideInfo();
+                }
+            });
+
+            // Detección de orientación mejorada
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    document.body.style.height = window.innerHeight + 'px';
+                }, 100);
+            });
+        });
+
+        // Funciones globales exportadas
+        window.showView = showView;
+        window.exportDiagram = exportDiagram;
+        window.showAdvancedStats = showAdvancedStats;
+        window.hideInfo = hideInfo;
+        
+        // CSS adicional para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInScale {
+                from {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+            
+            @keyframes drawLine {
+                to {
+                    stroke-dashoffset: 0;
+                }
+            }
+            
+            @keyframes slideOutDown {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+            }
+            
+            .control-btn.active {
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('💡 Comandos disponibles:');
+        console.log('- showAdvancedStats(): Análisis completo del sistema');
+        console.log('- exportDiagram("png"|"svg"): Exportar diagrama');
+        console.log('- Teclas 1,2,3: Cambiar vista rápidamente');
+        console.log('- Ctrl+S: Exportar PNG | Ctrl+E: Exportar SVG');
+        console.log('- H: Mostrar ayuda de teclado');
+    </script>
+</body>
+</html>
