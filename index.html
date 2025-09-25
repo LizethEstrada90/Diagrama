@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=2.0">
     <title>Diagrama Visual - Arquitectura Seguros Prevem</title>
     <style>
         * {
@@ -27,15 +27,21 @@
             --accent-green: #38a169;
             --accent-orange: #dd6b20;
             --accent-red: #e53e3e;
+            
+            /* Responsive scaling variables */
+            --scale-factor: 1;
+            --font-scale: 1;
+            --spacing-scale: 1;
         }
 
         body {
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #3498db 0%, #2ecc71 50%, #27ae60 100%);
             min-height: 100vh;
-            padding: 15px;
+            padding: clamp(8px, 2vw, 20px);
             overflow-x: auto;
             position: relative;
+            font-size: clamp(14px, 2.5vw, 16px);
         }
 
         body::before {
@@ -53,18 +59,211 @@
             z-index: -1;
         }
 
+        /* Estilos del login */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3498db 0%, #2ecc71 50%, #27ae60 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .login-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(20px, 4vw, 28px);
+            box-shadow: var(--shadow-hard);
+            padding: clamp(30px, 6vw, 50px);
+            width: min(90vw, 400px);
+            text-align: center;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .login-logo {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            margin-bottom: clamp(10px, 3vw, 20px);
+        }
+
+        .login-title {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: clamp(8px, 2vw, 15px);
+            background: linear-gradient(135deg, #3498db, #2ecc71, #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
+            margin-bottom: clamp(25px, 5vw, 40px);
+            font-weight: 500;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(15px, 3vw, 20px);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: clamp(15px, 3vw, 18px) clamp(20px, 4vw, 24px);
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            border-radius: clamp(12px, 2vw, 15px);
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+            background: white;
+        }
+
+        .login-input::placeholder {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: clamp(15px, 3vw, 20px);
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--accent-blue);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .login-input-with-icon {
+            padding-left: clamp(45px, 9vw, 55px);
+        }
+
+        .login-btn {
+            padding: clamp(15px, 3vw, 18px) clamp(25px, 5vw, 35px);
+            border: none;
+            border-radius: clamp(12px, 2vw, 15px);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--success-gradient);
+            color: white;
+            margin-top: clamp(10px, 2vw, 15px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: var(--accent-red);
+            font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+            margin-top: clamp(8px, 1.5vw, 10px);
+            padding: clamp(8px, 1.5vw, 10px);
+            background: rgba(229, 62, 62, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-red);
+            display: none;
+            text-align: left;
+        }
+
+        .loading-spinner-login {
+            width: clamp(16px, 3vw, 20px);
+            height: clamp(16px, 3vw, 20px);
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin-right: 8px;
+        }
+
+        .login-btn.loading .loading-spinner-login {
+            display: inline-block;
+        }
+
+        .login-btn.loading {
+            pointer-events: none;
+        }
+
+        /* Estilos del diagrama principal (existentes) */
         .diagram-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            border-radius: clamp(16px, 3vw, 24px);
             box-shadow: var(--shadow-hard);
-            padding: 25px;
+            padding: clamp(15px, 3vw, 35px);
             margin: 0 auto;
-            max-width: 1400px;
+            max-width: min(1400px, 95vw);
             width: 100%;
             position: relative;
             animation: slideInUp 0.8s ease-out;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .diagram-container.visible {
+            opacity: 1;
+            visibility: visible;
         }
 
         @keyframes slideInUp {
@@ -78,17 +277,22 @@
             }
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .header {
             text-align: center;
-            margin-bottom: 35px;
-            padding: 0 20px;
+            margin-bottom: clamp(20px, 4vw, 35px);
+            padding: 0 clamp(10px, 3vw, 20px);
         }
 
         .header h1 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-size: clamp(1.2rem, 4vw, 3rem);
             font-weight: 800;
             color: var(--text-primary);
-            margin-bottom: 15px;
+            margin-bottom: clamp(8px, 2vw, 15px);
             background: linear-gradient(135deg, #3498db, #2ecc71, #27ae60);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -96,6 +300,7 @@
             line-height: 1.2;
             letter-spacing: -0.02em;
             position: relative;
+            word-break: break-word;
         }
 
         .header h1::after {
@@ -104,8 +309,8 @@
             bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
+            width: clamp(40px, 8vw, 60px);
+            height: clamp(3px, 0.5vw, 4px);
             background: linear-gradient(135deg, #3498db, #2ecc71, #27ae60);
             border-radius: 2px;
             animation: expandWidth 1s ease-out 0.5s both;
@@ -113,12 +318,12 @@
 
         @keyframes expandWidth {
             from { width: 0; }
-            to { width: 60px; }
+            to { width: clamp(40px, 8vw, 60px); }
         }
 
         .header p {
             color: var(--accent-blue);
-            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-size: clamp(0.8rem, 2.2vw, 1.3rem);
             font-weight: 500;
             opacity: 0.9;
         }
@@ -126,28 +331,32 @@
         .controls {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: clamp(8px, 2vw, 15px);
+            margin-bottom: clamp(15px, 3vw, 25px);
             flex-wrap: wrap;
-            padding: 0 15px;
+            padding: 0 clamp(8px, 2vw, 15px);
         }
 
         .control-btn {
-            padding: 14px 28px;
+            padding: clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px);
             border: none;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.8rem, 2.2vw, 1.1rem);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            min-width: 140px;
+            letter-spacing: 0.3px;
+            min-width: clamp(160px, 28vw, 220px);
             white-space: nowrap;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            max-width: 280px;
+            text-align: center;
+            line-height: 1.2;
         }
 
         .control-btn::before {
@@ -184,19 +393,19 @@
         }
 
         .control-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
         .control-btn:active {
-            transform: translateY(-1px) scale(1.02);
+            transform: translateY(-1px) scale(1.01);
         }
 
         .sidebar-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: clamp(12px, 3vw, 20px);
+            margin-bottom: clamp(15px, 3vw, 25px);
             justify-content: center;
         }
 
@@ -204,11 +413,11 @@
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 16px;
+            padding: clamp(12px, 3vw, 20px);
+            border-radius: clamp(12px, 2vw, 16px);
             flex: 1;
-            min-width: 280px;
-            max-width: 350px;
+            min-width: min(250px, 90vw);
+            max-width: 400px;
             box-shadow: var(--shadow-soft);
             transition: all 0.3s ease;
         }
@@ -220,49 +429,50 @@
 
         .legend h3, .phase-indicator h3 {
             color: var(--text-primary);
-            margin-bottom: 18px;
+            margin-bottom: clamp(12px, 2.5vw, 18px);
             text-align: center;
-            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem);
             font-weight: 700;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            padding: 8px;
+            margin-bottom: clamp(8px, 1.5vw, 12px);
+            padding: clamp(6px, 1.2vw, 8px);
             border-radius: 8px;
             transition: all 0.2s ease;
         }
 
         .legend-item:hover {
             background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
+            transform: translateX(3px);
         }
 
         .legend-color {
-            width: 24px;
-            height: 4px;
-            margin-right: 15px;
+            width: clamp(20px, 4vw, 24px);
+            height: clamp(3px, 0.6vw, 4px);
+            margin-right: clamp(10px, 2vw, 15px);
             border-radius: 2px;
             flex-shrink: 0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .legend-text {
-            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            font-size: clamp(0.7rem, 1.6vw, 1rem);
             color: var(--text-secondary);
             font-weight: 500;
+            line-height: 1.3;
         }
 
         .phase-current, .phase-future {
             color: white;
-            padding: 12px 20px;
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
             border-radius: 25px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: clamp(10px, 2vw, 15px);
             text-align: center;
-            font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+            font-size: clamp(0.8rem, 1.8vw, 1.1rem);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
@@ -297,12 +507,14 @@
             overflow-x: auto;
             overflow-y: hidden;
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border-radius: clamp(16px, 2.5vw, 20px);
             background: 
                 linear-gradient(45deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%),
                 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0f4f8' fill-opacity='0.4'%3E%3Ccircle cx='7' cy='7' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
             position: relative;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .diagram-wrapper::before {
@@ -316,24 +528,25 @@
                 rgba(102, 126, 234, 0.05) 0%, 
                 rgba(118, 75, 162, 0.05) 50%, 
                 rgba(240, 147, 251, 0.05) 100%);
-            border-radius: 20px;
+            border-radius: clamp(16px, 2.5vw, 20px);
             pointer-events: none;
         }
 
         .diagram-svg {
             width: 100%;
-            min-width: 900px;
+            min-width: clamp(600px, 120vw, 1200px);
             height: auto;
-            min-height: 600px;
+            min-height: clamp(400px, 60vh, 800px);
             display: block;
             position: relative;
             z-index: 1;
         }
 
+        /* Elementos SVG responsive */
         .site-box {
             fill: none;
-            stroke-width: 3;
-            rx: 20;
+            stroke-width: clamp(2px, 0.4vw, 3px);
+            rx: clamp(15px, 2vw, 20px);
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15));
             transition: all 0.3s ease;
         }
@@ -365,7 +578,7 @@
         }
 
         .site-title {
-            font-size: clamp(14px, 1.8vw, 20px);
+            font-size: clamp(11px, 1.4vw, 20px);
             font-weight: 800;
             text-anchor: middle;
             fill: var(--text-primary);
@@ -374,8 +587,8 @@
 
         .server-box {
             fill: rgba(255, 255, 255, 0.9);
-            stroke-width: 2.5;
-            rx: 12;
+            stroke-width: clamp(1.5px, 0.3vw, 2.5px);
+            rx: clamp(8px, 1.5vw, 12px);
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -383,7 +596,7 @@
 
         .server-box:hover {
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.25));
-            transform: scale(1.08) translateY(-2px);
+            transform: scale(1.05) translateY(-1px);
         }
 
         .server-prod { 
@@ -428,7 +641,7 @@
         }
 
         .server-text {
-            font-size: clamp(9px, 1.3vw, 13px);
+            font-size: clamp(7px, 1vw, 13px);
             font-weight: 600;
             text-anchor: middle;
             fill: var(--text-primary);
@@ -437,7 +650,7 @@
 
         .app-circle {
             fill: rgba(255, 255, 255, 0.95);
-            stroke-width: 3;
+            stroke-width: clamp(2px, 0.4vw, 3px);
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -445,7 +658,7 @@
 
         .app-circle:hover {
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.3));
-            transform: scale(1.15);
+            transform: scale(1.1);
         }
 
         .app-axel { 
@@ -462,7 +675,7 @@
         }
 
         .app-text {
-            font-size: clamp(10px, 1.3vw, 14px);
+            font-size: clamp(8px, 1.2vw, 14px);
             font-weight: 700;
             text-anchor: middle;
             fill: var(--text-primary);
@@ -470,7 +683,7 @@
         }
 
         .connection-line {
-            stroke-width: 3;
+            stroke-width: clamp(2px, 0.4vw, 3px);
             fill: none;
             opacity: 0.8;
             transition: all 0.3s ease;
@@ -478,7 +691,7 @@
         }
 
         .connection-line:hover {
-            stroke-width: 5;
+            stroke-width: clamp(3px, 0.6vw, 5px);
             opacity: 1;
         }
 
@@ -511,30 +724,32 @@
 
         .info-panel {
             position: fixed;
-            bottom: 25px;
-            left: 25px;
-            right: 25px;
+            bottom: clamp(15px, 3vw, 25px);
+            left: clamp(15px, 3vw, 25px);
+            right: clamp(15px, 3vw, 25px);
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 16px;
-            max-width: 450px;
+            padding: clamp(15px, 3vw, 20px);
+            border-radius: clamp(12px, 2vw, 16px);
+            max-width: min(450px, 90vw);
             display: none;
             z-index: 1000;
             box-shadow: var(--shadow-hard);
             margin: 0 auto;
             animation: slideInUp 0.3s ease-out;
+            max-height: 60vh;
+            overflow-y: auto;
         }
 
         .info-panel h3 {
             color: var(--text-primary);
-            margin-bottom: 15px;
-            font-size: clamp(1rem, 2vw, 1.2rem);
+            margin-bottom: clamp(10px, 2vw, 15px);
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem);
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: clamp(8px, 1.5vw, 10px);
         }
 
         .info-panel h3::before {
@@ -543,11 +758,11 @@
         }
 
         .info-panel p {
-            font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+            font-size: clamp(0.7rem, 1.6vw, 0.95rem);
             color: var(--text-secondary);
-            margin-bottom: 8px;
-            line-height: 1.5;
-            padding-left: 15px;
+            margin-bottom: clamp(6px, 1.2vw, 8px);
+            line-height: 1.4;
+            padding-left: clamp(10px, 2vw, 15px);
             position: relative;
         }
 
@@ -559,18 +774,35 @@
             font-weight: bold;
         }
 
+        .info-panel button {
+            margin-top: clamp(8px, 1.5vw, 10px);
+            padding: clamp(6px, 1.2vw, 8px) clamp(12px, 2.5vw, 16px);
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+            transition: all 0.3s ease;
+        }
+
+        .info-panel button:hover {
+            background: var(--accent-purple);
+            transform: translateY(-1px);
+        }
+
         .tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 16px);
+            border-radius: clamp(8px, 1.5vw, 12px);
+            font-size: clamp(0.7rem, 1.4vw, 0.9rem);
             pointer-events: none;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            max-width: 250px;
+            max-width: min(250px, 80vw);
             word-wrap: break-word;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
@@ -618,24 +850,26 @@
         }
 
         .performance-metrics {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
+            position: relative;
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.8rem;
+            padding: clamp(10px, 2vw, 15px);
+            border-radius: clamp(8px, 1.5vw, 12px);
+            font-size: clamp(0.7rem, 1.4vw, 0.8rem);
             color: var(--text-secondary);
-            min-width: 150px;
+            margin-bottom: clamp(10px, 2vw, 15px);
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
             z-index: 10;
         }
 
         .metric-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: clamp(6px, 1.2vw, 8px);
             align-items: center;
         }
 
@@ -654,7 +888,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 20px;
+            border-radius: clamp(16px, 2.5vw, 20px);
             z-index: 100;
             opacity: 0;
             pointer-events: none;
@@ -667,196 +901,253 @@
         }
 
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--glass-border);
-            border-top: 4px solid var(--accent-blue);
+            width: clamp(30px, 6vw, 50px);
+            height: clamp(30px, 6vw, 50px);
+            border: clamp(2px, 0.4vw, 4px) solid var(--glass-border);
+            border-top: clamp(2px, 0.4vw, 4px) solid var(--accent-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Security indicators */
+        .security-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-gradient);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none;
         }
 
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
+        .security-badge.authenticated {
+            display: block;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn.visible {
+            display: block;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent-orange);
+            transform: translateY(-1px);
+        }
+
+        /* Estilos específicos para móviles */
+        @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .login-box {
+                padding: 25px;
+                width: 95vw;
             }
 
             .diagram-container {
-                padding: 20px;
-                border-radius: 20px;
+                padding: 15px;
+                border-radius: 16px;
             }
 
             .header {
-                margin-bottom: 25px;
-            }
-
-            .controls {
-                gap: 10px;
                 margin-bottom: 20px;
             }
 
+            .header h1 {
+                font-size: 1.4rem;
+                line-height: 1.3;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
             .control-btn {
-                padding: 12px 20px;
-                min-width: 120px;
-                font-size: 0.8rem;
+                width: 100%;
+                max-width: 300px;
+                padding: 14px 20px;
+                font-size: 0.9rem;
+                min-width: auto;
+                line-height: 1.3;
             }
 
             .sidebar-container {
                 flex-direction: column;
-                gap: 15px;
-                margin-bottom: 20px;
+                gap: 10px;
+                margin-bottom: 15px;
             }
 
             .legend, .phase-indicator {
                 min-width: auto;
                 max-width: none;
-                padding: 16px;
+                padding: 12px;
             }
 
             .diagram-svg {
-                min-width: 700px;
-                min-height: 500px;
+                min-width: 500px;
+                min-height: 350px;
             }
 
             .info-panel {
-                bottom: 15px;
-                left: 15px;
-                right: 15px;
-                padding: 16px;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 12px;
                 max-width: none;
+                max-height: 50vh;
             }
 
             .performance-metrics {
                 position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 15px;
-                width: 100%;
+                margin-bottom: 10px;
+                max-width: none;
+            }
+
+            .security-badge, .logout-btn {
+                top: 10px;
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
+
+            .logout-btn {
+                left: 10px;
+            }
+
+            .security-badge {
+                right: 10px;
             }
         }
 
-        /* Tablet adjustments */
-        @media (max-width: 1024px) and (min-width: 769px) {
+        /* Print styles */
+        @media print {
+            .login-container,
+            .security-badge,
+            .logout-btn,
+            .controls,
+            .info-panel,
+            .tooltip,
+            .loading-overlay {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                color: black;
+                padding: 0;
+            }
+
             .diagram-container {
-                padding: 22px;
-            }
-
-            .diagram-svg {
-                min-width: 800px;
-                min-height: 550px;
-            }
-
-            .sidebar-container {
-                justify-content: space-around;
-            }
-
-            .legend, .phase-indicator {
-                min-width: 220px;
-                max-width: 280px;
-            }
-        }
-
-        /* Large screen adjustments */
-        @media (min-width: 1400px) {
-            .diagram-container {
-                padding: 35px;
-            }
-
-            .diagram-svg {
-                min-width: 1200px;
-                height: 800px;
-            }
-
-            .sidebar-container {
-                position: absolute;
-                top: 140px;
-                left: 35px;
-                right: 35px;
-                justify-content: space-between;
-                flex-wrap: nowrap;
-                margin-bottom: 0;
-            }
-
-            .legend {
-                position: static;
-                order: 2;
-            }
-
-            .phase-indicator {
-                position: static;
-                order: 1;
-            }
-
-            .info-panel {
-                position: absolute;
-                bottom: 25px;
-                left: 25px;
-                right: auto;
-                max-width: 350px;
-            }
-
-            .performance-metrics {
-                position: absolute;
-                bottom: 25px;
-                right: 35px;
-                max-width: 200px;
-            }
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .diagram-container {
-                background: rgba(26, 32, 44, 0.95);
-                color: #e2e8f0;
-            }
-
-            .header h1 {
-                color: #e2e8f0;
-            }
-
-            .site-title,
-            .server-text,
-            .app-text {
-                fill: #000000 !important;
-            }
-
-            .legend-text,
-            .info-panel p {
-                color: #a0aec0;
-            }
-        }
-
-        /* High contrast mode */
-        @media (prefers-contrast: high) {
-            .server-box,
-            .app-circle {
-                stroke-width: 4;
-            }
-
-            .connection-line {
-                stroke-width: 4;
-            }
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+                background: white;
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
             }
         }
     </style>
 </head>
 <body>
-    <div class="diagram-container">
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-logo">🏢</div>
+            <h1 class="login-title">Prevem Seguros</h1>
+            <p class="login-subtitle">Acceso Seguro - Diagrama de Arquitectura</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <div class="input-icon">👤</div>
+                    <input 
+                        type="text" 
+                        class="login-input login-input-with-icon" 
+                        id="username"
+                        placeholder="Usuario"
+                        required
+                        autocomplete="username"
+                        maxlength="20"
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <div class="input-icon">🔒</div>
+                    <input 
+                        type="password" 
+                        class="login-input login-input-with-icon" 
+                        id="password"
+                        placeholder="Contraseña"
+                        required
+                        autocomplete="current-password"
+                        maxlength="20"
+                    >
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <div class="loading-spinner-login" id="loginSpinner"></div>
+                    <span id="loginBtnText">🚀 Acceder al Sistema</span>
+                </button>
+                
+                <div class="error-message" id="errorMessage">
+                    <strong>⚠️ Error de Autenticación</strong><br>
+                    Usuario o contraseña incorrectos. Verifique sus credenciales.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Security Badge -->
+    <div class="security-badge" id="securityBadge">
+        🔒 Sesión Autenticada
+    </div>
+
+    <!-- Logout Button -->
+    <button class="logout-btn" id="logoutBtn">
+        🚪 Cerrar Sesión
+    </button>
+
+    <!-- Main Diagram Container -->
+    <div class="diagram-container" id="diagramContainer">
         <div class="performance-metrics" id="performanceMetrics">
             <div class="metric-item">
                 <span>Servidores:</span>
@@ -882,13 +1173,13 @@
         </div>
 
         <div class="controls">
-            <button class="control-btn btn-current" onclick="showView('current')" data-view="current">
+            <button class="control-btn btn-current" onclick="showView('current')" data-view="current" aria-label="Mostrar estado actual del sistema">
                 📍 Estado Actual
             </button>
-            <button class="control-btn btn-future" onclick="showView('future')" data-view="future">
+            <button class="control-btn btn-future" onclick="showView('future')" data-view="future" aria-label="Mostrar plan futuro del sistema">
                 🎯 Plan Futuro
             </button>
-            <button class="control-btn btn-both" onclick="showView('both')" data-view="both">
+            <button class="control-btn btn-both" onclick="showView('both')" data-view="both" aria-label="Mostrar migración completa">
                 🔄 Migración Completa
             </button>
         </div>
@@ -924,18 +1215,19 @@
             </div>
         </div>
 
-        <div class="info-panel" id="infoPanel">
+        <div class="info-panel" id="infoPanel" role="dialog" aria-labelledby="infoTitle" aria-hidden="true">
             <h3 id="infoTitle">Información</h3>
             <div id="infoContent"></div>
-            <button onclick="hideInfo()" style="margin-top: 10px; padding: 8px 16px; background: var(--accent-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">Cerrar</button>
+            <button onclick="hideInfo()" aria-label="Cerrar panel de información">Cerrar</button>
         </div>
 
-        <div class="diagram-wrapper">
-            <div class="loading-overlay" id="loadingOverlay">
-                <div class="loading-spinner"></div>
+        <div class="diagram-wrapper" role="img" aria-label="Diagrama de arquitectura de sistemas Prevem Seguros">
+            <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+                <div class="loading-spinner" aria-label="Cargando"></div>
             </div>
 
-            <svg class="diagram-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+            <svg class="diagram-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="diagram-title">
+                <title id="diagram-title">Arquitectura de Sistemas Prevem Seguros - Estado Actual y Plan Futuro</title>
                 <defs>
                     <marker id="arrowhead" markerWidth="12" markerHeight="9" refX="11" refY="4.5" orient="auto">
                         <polygon points="0 0, 12 4.5, 0 9" fill="var(--text-primary)" />
@@ -979,7 +1271,7 @@
                     <text x="300" y="145" class="site-title">🏢 Ciudad de México - Matriz</text>
                     
                     <!-- Servidor Producción X9 -->
-                    <g class="server-group" data-info="prod-server">
+                    <g class="server-group" data-info="prod-server" tabindex="0" role="button" aria-label="Servidor de Producción X9">
                         <rect x="80" y="170" width="120" height="80" class="server-box server-prod" fill="url(#serverGradient)"/>
                         <text x="140" y="190" class="server-text">🖥️ Servidor X9</text>
                         <text x="140" y="205" class="server-text">PRODUCCIÓN</text>
@@ -989,7 +1281,7 @@
                     </g>
 
                     <!-- Servidor Desarrollo X9 -->
-                    <g class="server-group" data-info="dev-server">
+                    <g class="server-group" data-info="dev-server" tabindex="0" role="button" aria-label="Servidor de Desarrollo X9">
                         <rect x="220" y="170" width="120" height="80" class="server-box server-dev" fill="url(#serverGradient)"/>
                         <text x="280" y="190" class="server-text">🖥️ Servidor X9</text>
                         <text x="280" y="205" class="server-text">DEV/QA</text>
@@ -999,7 +1291,7 @@
                     </g>
 
                     <!-- Servidores de Aplicaciones -->
-                    <g class="app-servers">
+                    <g class="app-servers" tabindex="0" role="button" aria-label="Servidores de Aplicaciones">
                         <rect x="360" y="170" width="100" height="60" class="server-box" style="stroke: var(--accent-green); fill: url(#serverGradient);"/>
                         <text x="410" y="190" class="server-text">🖥️ App Servers</text>
                         <text x="410" y="205" class="server-text">Windows</text>
@@ -1009,14 +1301,14 @@
 
                     <!-- Aplicaciones -->
                     <g class="applications-cdmx">
-                        <circle cx="140" cy="320" r="35" class="app-circle app-axel" data-info="axel-app" filter="url(#shadow)"/>
+                        <circle cx="140" cy="320" r="35" class="app-circle app-axel" data-info="axel-app" filter="url(#shadow)" tabindex="0" role="button" aria-label="Aplicación ACSEL"/>
                         <text x="140" y="325" class="app-text">ACSEL</text>
                         
-                        <circle cx="240" cy="320" r="35" class="app-circle app-insurance" data-info="insurance-app" filter="url(#shadow)"/>
+                        <circle cx="240" cy="320" r="35" class="app-circle app-insurance" data-info="insurance-app" filter="url(#shadow)" tabindex="0" role="button" aria-label="Aplicación Insurance"/>
                         <text x="240" y="318" class="app-text" style="font-size: 11px;">Insurance</text>
                         <text x="240" y="330" class="app-text" style="font-size: 11px;">(Siniestros)</text>
                         
-                        <circle cx="340" cy="320" r="35" class="app-circle app-mesa" data-info="mesa-app" filter="url(#shadow)"/>
+                        <circle cx="340" cy="320" r="35" class="app-circle app-mesa" data-info="mesa-app" filter="url(#shadow)" tabindex="0" role="button" aria-label="Aplicación Mesa de Control"/>
                         <text x="340" y="318" class="app-text" style="font-size: 11px;">Mesa</text>
                         <text x="340" y="330" class="app-text" style="font-size: 11px;">Control</text>
                     </g>
@@ -1024,9 +1316,9 @@
                     <!-- Usuarios -->
                     <g class="users-group">
                         <text x="460" y="290" class="server-text">👥 Usuarios</text>
-                        <circle cx="440" cy="310" r="8" class="user-icon" data-info="users-internal"/>
-                        <circle cx="460" cy="310" r="8" class="user-icon" data-info="users-internal"/>
-                        <circle cx="480" cy="310" r="8" class="user-icon" data-info="users-internal"/>
+                        <circle cx="440" cy="310" r="8" class="user-icon" data-info="users-internal" tabindex="0" role="button" aria-label="Usuarios internos"/>
+                        <circle cx="460" cy="310" r="8" class="user-icon" data-info="users-internal" tabindex="0" role="button" aria-label="Usuarios internos"/>
+                        <circle cx="480" cy="310" r="8" class="user-icon" data-info="users-internal" tabindex="0" role="button" aria-label="Usuarios internos"/>
                         <text x="460" y="340" class="app-text">VPN/Web Access</text>
                     </g>
                 </g>
@@ -1037,7 +1329,7 @@
                     <text x="225" y="505" class="site-title">🏢 San Jerónimo - DRP Actual</text>
                     
                     <!-- Servidor X7 DRP -->
-                    <g class="server-group" data-info="drp-current">
+                    <g class="server-group" data-info="drp-current" tabindex="0" role="button" aria-label="Servidor DRP Actual X7">
                         <rect x="80" y="530" width="120" height="70" class="server-box server-drp" fill="url(#serverGradient)"/>
                         <text x="140" y="550" class="server-text">🖥️ Servidor X7</text>
                         <text x="140" y="565" class="server-text">DRP ACTUAL</text>
@@ -1061,7 +1353,7 @@
                     <text x="900" y="225" class="site-title">🎯 León - Plan DRP/BCP</text>
                     
                     <!-- Nuevos Servidores León -->
-                    <g class="server-group" data-info="leon-new">
+                    <g class="server-group" data-info="leon-new" tabindex="0" role="button" aria-label="Nuevos Servidores León">
                         <rect x="680" y="260" width="140" height="90" class="server-box server-new" fill="url(#serverGradient)"/>
                         <text x="750" y="280" class="server-text">🖥️ Servidores Nuevos</text>
                         <text x="750" y="295" class="server-text">DRP PRINCIPAL</text>
@@ -1073,15 +1365,15 @@
 
                     <!-- Aplicaciones Replicadas -->
                     <g class="applications-leon">
-                        <circle cx="750" cy="400" r="40" class="app-circle app-axel" data-info="axel-leon" filter="url(#shadow)"/>
+                        <circle cx="750" cy="400" r="40" class="app-circle app-axel" data-info="axel-leon" filter="url(#shadow)" tabindex="0" role="button" aria-label="ACSEL León"/>
                         <text x="750" y="403" class="app-text" style="font-size: 11px;">ACSEL</text>
                         <text x="750" y="415" class="app-text" style="font-size: 10px;">REPLICA</text>
                         
-                        <circle cx="850" cy="400" r="40" class="app-circle app-insurance" data-info="insurance-leon" filter="url(#shadow)"/>
+                        <circle cx="850" cy="400" r="40" class="app-circle app-insurance" data-info="insurance-leon" filter="url(#shadow)" tabindex="0" role="button" aria-label="Insurance León"/>
                         <text x="850" y="398" class="app-text" style="font-size: 10px;">Insurance</text>
                         <text x="850" y="410" class="app-text" style="font-size: 10px;">REPLICA</text>
                         
-                        <circle cx="950" cy="400" r="40" class="app-circle app-mesa" data-info="mesa-leon" filter="url(#shadow)"/>
+                        <circle cx="950" cy="400" r="40" class="app-circle app-mesa" data-info="mesa-leon" filter="url(#shadow)" tabindex="0" role="button" aria-label="Mesa León"/>
                         <text x="950" y="398" class="app-text" style="font-size: 11px;">Mesa</text>
                         <text x="950" y="410" class="app-text" style="font-size: 10px;">REPLICA</text>
                     </g>
@@ -1160,11 +1452,240 @@
     </div>
 
     <script>
+        // Credenciales de autenticación
+        const VALID_CREDENTIALS = {
+            username: 'admin',
+            password: 'pre@seg@@'
+        };
+
+        // Variables globales
         let currentView = 'current';
         let animationQueue = [];
         let isAnimating = false;
+        let isAuthenticated = false;
+        let loginAttempts = 0;
+        const MAX_LOGIN_ATTEMPTS = 3;
 
-        // Información detallada de cada componente con métricas mejoradas
+        // Sistema de autenticación
+        class AuthSystem {
+            constructor() {
+                this.setupEventListeners();
+                this.checkSession();
+            }
+
+            setupEventListeners() {
+                const loginForm = document.getElementById('loginForm');
+                const logoutBtn = document.getElementById('logoutBtn');
+
+                loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                logoutBtn.addEventListener('click', () => this.logout());
+
+                // Detectar Enter en campos de entrada
+                document.getElementById('username').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        document.getElementById('password').focus();
+                    }
+                });
+
+                document.getElementById('password').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            }
+
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+                    this.showError('Demasiados intentos fallidos. Recargue la página para intentar nuevamente.');
+                    return;
+                }
+
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const loginBtn = document.getElementById('loginBtn');
+                const loginSpinner = document.getElementById('loginSpinner');
+                const loginBtnText = document.getElementById('loginBtnText');
+                const errorMessage = document.getElementById('errorMessage');
+
+                // Ocultar mensaje de error anterior
+                errorMessage.style.display = 'none';
+
+                // Mostrar estado de carga
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+                loginBtnText.textContent = 'Verificando...';
+
+                try {
+                    // Simular validación con delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    if (this.validateCredentials(username, password)) {
+                        this.successfulLogin();
+                    } else {
+                        this.failedLogin();
+                    }
+                } catch (error) {
+                    console.error('Error en autenticación:', error);
+                    this.showError('Error interno. Intente nuevamente.');
+                } finally {
+                    // Restaurar botón
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    loginBtnText.textContent = '🚀 Acceder al Sistema';
+                }
+            }
+
+            validateCredentials(username, password) {
+                return username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password;
+            }
+
+            successfulLogin() {
+                isAuthenticated = true;
+                loginAttempts = 0;
+                
+                // Guardar sesión
+                sessionStorage.setItem('prevem_auth', 'true');
+                sessionStorage.setItem('prevem_login_time', Date.now().toString());
+                
+                this.showMainApp();
+                this.logSecurityEvent('LOGIN_SUCCESS');
+            }
+
+            failedLogin() {
+                loginAttempts++;
+                const remainingAttempts = MAX_LOGIN_ATTEMPTS - loginAttempts;
+                
+                let errorMsg = 'Usuario o contraseña incorrectos.';
+                if (remainingAttempts > 0) {
+                    errorMsg += ` Intentos restantes: ${remainingAttempts}`;
+                } else {
+                    errorMsg = 'Máximo de intentos alcanzado. Recargue la página.';
+                }
+                
+                this.showError(errorMsg);
+                this.clearPassword();
+                this.logSecurityEvent('LOGIN_FAILED');
+                
+                // Vibración en móviles para feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+
+            showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.innerHTML = `<strong>⚠️ Error de Autenticación</strong><br>${message}`;
+                errorMessage.style.display = 'block';
+                
+                // Auto-ocultar después de 5 segundos
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            clearPassword() {
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+
+            showMainApp() {
+                const loginContainer = document.getElementById('loginContainer');
+                const diagramContainer = document.getElementById('diagramContainer');
+                const securityBadge = document.getElementById('securityBadge');
+                const logoutBtn = document.getElementById('logoutBtn');
+
+                // Transición suave
+                loginContainer.classList.add('hidden');
+                
+                setTimeout(() => {
+                    diagramContainer.classList.add('visible');
+                    securityBadge.classList.add('authenticated');
+                    logoutBtn.classList.add('visible');
+                    
+                    // Inicializar el diagrama
+                    initializeDiagram();
+                }, 800);
+            }
+
+            logout() {
+                if (confirm('¿Está seguro que desea cerrar la sesión?')) {
+                    isAuthenticated = false;
+                    
+                    // Limpiar sesión
+                    sessionStorage.removeItem('prevem_auth');
+                    sessionStorage.removeItem('prevem_login_time');
+                    
+                    // Resetear interfaz
+                    this.showLoginScreen();
+                    this.logSecurityEvent('LOGOUT');
+                }
+            }
+
+            showLoginScreen() {
+                const loginContainer = document.getElementById('loginContainer');
+                const diagramContainer = document.getElementById('diagramContainer');
+                const securityBadge = document.getElementById('securityBadge');
+                const logoutBtn = document.getElementById('logoutBtn');
+
+                // Ocultar elementos principales
+                diagramContainer.classList.remove('visible');
+                securityBadge.classList.remove('authenticated');
+                logoutBtn.classList.remove('visible');
+
+                setTimeout(() => {
+                    loginContainer.classList.remove('hidden');
+                    
+                    // Limpiar formulario
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('username').focus();
+                    loginAttempts = 0;
+                }, 300);
+            }
+
+            checkSession() {
+                const authStatus = sessionStorage.getItem('prevem_auth');
+                const loginTime = sessionStorage.getItem('prevem_login_time');
+                
+                if (authStatus === 'true' && loginTime) {
+                    // Verificar si la sesión no ha expirado (8 horas)
+                    const sessionAge = Date.now() - parseInt(loginTime);
+                    const eightHours = 8 * 60 * 60 * 1000;
+                    
+                    if (sessionAge < eightHours) {
+                        isAuthenticated = true;
+                        this.showMainApp();
+                        return;
+                    } else {
+                        // Sesión expirada
+                        this.clearSession();
+                    }
+                }
+                
+                // Mostrar login si no hay sesión válida
+                document.getElementById('username').focus();
+            }
+
+            clearSession() {
+                sessionStorage.removeItem('prevem_auth');
+                sessionStorage.removeItem('prevem_login_time');
+            }
+
+            logSecurityEvent(event) {
+                const timestamp = new Date().toISOString();
+                const userAgent = navigator.userAgent;
+                const ip = 'CLIENT_IP'; // En producción se obtendría del servidor
+                
+                console.log(`[SECURITY] ${timestamp} - ${event} - User Agent: ${userAgent.substring(0, 50)}...`);
+                
+                // En producción, enviar al servidor para logging
+                // this.sendSecurityLog({ event, timestamp, userAgent, ip });
+            }
+        }
+
+        // Información detallada de cada componente
         const componentInfo = {
             'prod-server': {
                 title: '🖥️ Servidor Producción X9',
@@ -1291,62 +1812,12 @@
                     '• Soporte: Scenario café (Starbucks WiFi)',
                     '• Capacitación DRP: Programada Q2 2025'
                 ]
-            },
-            'axel-leon': {
-                title: '💼 Axel León (Futuro)',
-                content: [
-                    '• Réplica completa del sistema core',
-                    '• Sincronización: Tiempo real',
-                    '• Failover: Automático < 30 min',
-                    '• Performance: Equivalente o superior',
-                    '• Continuidad: Sin pérdida datos',
-                    '• Load balancer: HAProxy configurado',
-                    '• Monitoreo: Nagios + Grafana',
-                    '• Cumplimiento: CNSF + CNBV',
-                    '• Testing: Trimestral programado',
-                    '• Estado: Arquitectura definida'
-                ]
-            },
-            'insurance-leon': {
-                title: '🚨 Insurance León (Futuro)',
-                content: [
-                    '• Sistema completamente replicado',
-                    '• Base datos: Replica sincronizada',
-                    '• Archivos: Sincronización Azure',
-                    '• Misma funcionalidad y performance',
-                    '• Reverse proxy: Nginx configurado',
-                    '• URL: Transparente para usuarios',
-                    '• Failover: Automático DNS',
-                    '• Testing: Mensual programado',
-                    '• Estado: Diseño técnico completo'
-                ]
-            },
-            'mesa-leon': {
-                title: '📞 Mesa León (Futuro)',
-                content: [
-                    '• Sistema administrativo replicado',
-                    '• Base datos: MySQL replica master-slave',
-                    '• Acceso: VPN León independiente',
-                    '• Funcionalidad: 100% equivalente',
-                    '• Reportes: Consolidación automática',
-                    '• Backup: Independiente CDMX',
-                    '• Usuarios: Mismo directorio activo',
-                    '• Estado: Análisis de requerimientos'
-                ]
             }
-        };
-
-        // Métricas del sistema en tiempo real
-        const systemMetrics = {
-            servers: { current: 4, target: 6 },
-            applications: { current: 3, target: 3 },
-            connections: { current: 7, target: 12 },
-            uptime: 99.8,
-            performance: 85
         };
 
         // Función mejorada para cambiar vista con animaciones
         function showView(view) {
+            if (!isAuthenticated) return;
             if (isAnimating) return;
             
             isAnimating = true;
@@ -1493,13 +1964,6 @@
             requestAnimationFrame(updateCounter);
         }
 
-        function playViewTransition(view) {
-            const elements = document.querySelectorAll('.server-group, .app-circle');
-            elements.forEach((element, index) => {
-                element.style.animation = `fadeInScale 0.6s ease ${index * 0.1}s both`;
-            });
-        }
-
         function animateFutureConnections() {
             const futureLines = document.querySelectorAll('#futureConnections .connection-line');
             futureLines.forEach((line, index) => {
@@ -1518,8 +1982,10 @@
             }
         }
 
-        // Funciones de interactividad mejoradas
+        // Funciones de interactividad
         function showInfo(infoKey) {
+            if (!isAuthenticated) return;
+            
             const info = componentInfo[infoKey];
             if (info) {
                 const infoPanel = document.getElementById('infoPanel');
@@ -1539,6 +2005,27 @@
             setTimeout(() => {
                 infoPanel.style.display = 'none';
             }, 300);
+        }
+
+        // Inicialización del diagrama
+        function initializeDiagram() {
+            setupInteractivity();
+            setupKeyboardShortcuts();
+            showView('current');
+            
+            // Efectos de entrada escalonados
+            setTimeout(() => {
+                document.querySelectorAll('.server-group, .app-circle').forEach((element, index) => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'translateY(20px)';
+                    element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }, index * 150);
+                });
+            }, 200);
         }
 
         // Event listeners mejorados
@@ -1588,127 +2075,55 @@
             });
         }
 
-        // Tooltip avanzado solo para desktop
-        function setupTooltips() {
-            if (!window.matchMedia('(hover: hover)').matches) return;
-
-            const tooltip = document.getElementById('tooltip');
-            
-            document.querySelectorAll('[data-info]').forEach(element => {
-                element.addEventListener('mousemove', (e) => {
-                    const infoKey = e.target.closest('[data-info]').getAttribute('data-info');
-                    const info = componentInfo[infoKey];
-                    
-                    if (info) {
-                        tooltip.textContent = info.title;
-                        
-                        const rect = element.getBoundingClientRect();
-                        const tooltipRect = tooltip.getBoundingClientRect();
-                        
-                        let left = e.clientX + 15;
-                        let top = e.clientY - tooltipRect.height - 10;
-                        
-                        // Ajustar posición si se sale de la ventana
-                        if (left + tooltipRect.width > window.innerWidth) {
-                            left = e.clientX - tooltipRect.width - 15;
-                        }
-                        if (top < 0) {
-                            top = e.clientY + 15;
-                        }
-                        
-                        tooltip.style.left = left + 'px';
-                        tooltip.style.top = top + 'px';
-                        tooltip.style.opacity = '1';
+        // Keyboard shortcuts mejorados
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (!isAuthenticated) return;
+                
+                // Prevenir shortcuts si hay un modal abierto
+                if (document.getElementById('infoPanel').style.display === 'block' && e.key === 'Escape') {
+                    hideInfo();
+                    return;
+                }
+                
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            exportDiagram('png');
+                            break;
+                        case 'e':
+                            e.preventDefault();
+                            exportDiagram('svg');
+                            break;
                     }
-                });
-
-                element.addEventListener('mouseleave', () => {
-                    tooltip.style.opacity = '0';
-                });
-            });
-        }
-
-        // Simulación de datos en tiempo real mejorada
-        function startRealTimeUpdates() {
-            setInterval(() => {
-                updateSystemStatus();
-                updateConnectionFlow();
-            }, 3000);
-        }
-
-        function updateSystemStatus() {
-            const indicators = document.querySelectorAll('.status-indicator');
-            indicators.forEach(indicator => {
-                // Simular cambios ocasionales de estado
-                if (Math.random() < 0.1) {
-                    const currentColor = indicator.getAttribute('fill');
-                    indicator.style.opacity = '0.3';
-                    
-                    setTimeout(() => {
-                        indicator.style.opacity = '1';
-                        // Opcional: cambiar color para simular alertas
-                        if (Math.random() < 0.05) {
-                            indicator.setAttribute('fill', 'var(--accent-orange)');
-                            setTimeout(() => {
-                                indicator.setAttribute('fill', currentColor);
-                            }, 2000);
+                }
+                
+                // Navegación rápida
+                switch(e.key) {
+                    case '1':
+                        showView('current');
+                        break;
+                    case '2':
+                        showView('future');
+                        break;
+                    case '3':
+                        showView('both');
+                        break;
+                    case 'l':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            authSystem.logout();
                         }
-                    }, 500);
+                        break;
                 }
             });
         }
 
-        function updateConnectionFlow() {
-            const dataFlow = document.getElementById('dataFlow');
-            if (dataFlow && currentView !== 'current') return;
-            
-            // Agregar partículas de datos ocasionalmente
-            if (Math.random() < 0.3) {
-                createDataParticle();
-            }
-        }
-
-        function createDataParticle() {
-            const svg = document.querySelector('.diagram-svg');
-            const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            
-            particle.setAttribute('r', '2');
-            particle.setAttribute('fill', `var(--accent-${['blue', 'green', 'purple'][Math.floor(Math.random() * 3)]})`);
-            particle.setAttribute('opacity', '0.8');
-            
-            const paths = [
-                'M140,250 Q90,350 140,530',
-                'M140,250 L140,295',
-                'M240,295 Q280,310 320,320'
-            ];
-            
-            const randomPath = paths[Math.floor(Math.random() * paths.length)];
-            
-            const animateMotion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-            animateMotion.setAttribute('dur', `${2 + Math.random() * 2}s`);
-            animateMotion.setAttribute('path', randomPath);
-            animateMotion.setAttribute('begin', '0s');
-            
-            particle.appendChild(animateMotion);
-            
-            const animateOpacity = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
-            animateOpacity.setAttribute('attributeName', 'opacity');
-            animateOpacity.setAttribute('values', '0;0.8;0');
-            animateOpacity.setAttribute('dur', `${2 + Math.random() * 2}s`);
-            
-            particle.appendChild(animateOpacity);
-            svg.appendChild(particle);
-            
-            // Limpiar después de la animación
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                }
-            }, 5000);
-        }
-
-        // Funciones de exportación mejoradas
+        // Funciones de exportación
         function exportDiagram(format = 'png') {
+            if (!isAuthenticated) return;
+            
             showLoadingOverlay(true);
             
             setTimeout(() => {
@@ -1771,151 +2186,32 @@
             URL.revokeObjectURL(url);
         }
 
-        // Funciones de análisis y estadísticas
-        function showAdvancedStats() {
-            const stats = {
-                'Infraestructura Actual': {
-                    'Servidores Físicos': '4 (2 X9 CDMX + 1 X7 SJ + 1 App)',
-                    'Capacidad Total RAM': '56 GB distribuidos',
-                    'Almacenamiento': '~8 TB (HDD/SSD mixto)',
-                    'Aplicaciones Críticas': '3 (Axel, Insurance, Mesa)',
-                    'Usuarios Activos': '45 distribuidos',
-                    'Uptime Promedio': '99.2% (último trimestre)'
-                },
-                'Plan León - Mejoras': {
-                    'Nuevos Servidores': '2 Dell R750 (alta capacidad)',
-                    'Increment RAM': '+64 GB (118% incremento)',
-                    'Storage Upgrade': 'NVMe + SAS (300% mejora)',
-                    'RTO Mejora': '4-6h → <30min (85% reducción)',
-                    'RPO Mejora': '15min → <5min (66% reducción)',
-                    'Automatización': 'Manual → Automático'
-                },
-                'Inversión Estimada': {
-                    'Hardware (Polo Deal)': '$180,000 - $220,000 USD',
-                    'Software Licencias': '$45,000 - $60,000 USD',
-                    'Conectividad Anual': '$24,000 USD',
-                    'Implementación': '$35,000 - $50,000 USD',
-                    'Total Proyecto': '$284,000 - $354,000 USD'
-                },
-                'Timeline Q2-Q4 2025': {
-                    'Q2 2025': 'Compra equipos + diseño detallado',
-                    'Q3 2025': 'Instalación + configuración',
-                    'Q4 2025': 'Testing + go-live + documentación',
-                    'Q1 2026': 'Optimización + training usuario'
-                }
-            };
-            
-            console.group('📊 Análisis Completo - Arquitectura Prevén');
-            Object.entries(stats).forEach(([category, items]) => {
-                console.group(`${category}:`);
-                Object.entries(items).forEach(([key, value]) => {
-                    console.log(`${key}: ${value}`);
-                });
-                console.groupEnd();
-            });
-            console.groupEnd();
-            
-            // Mostrar también en UI para móviles
-            if (window.innerWidth < 768) {
-                showInfo('system-stats');
-            }
-        }
-
-        // Keyboard shortcuts mejorados
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                // Prevenir shortcuts si hay un modal abierto
-                if (document.getElementById('infoPanel').style.display === 'block' && e.key === 'Escape') {
-                    hideInfo();
-                    return;
-                }
-                
-                if (e.ctrlKey || e.metaKey) {
-                    switch(e.key) {
-                        case 's':
-                            e.preventDefault();
-                            exportDiagram('png');
-                            break;
-                        case 'e':
-                            e.preventDefault();
-                            exportDiagram('svg');
-                            break;
-                        case 'd':
-                            e.preventDefault();
-                            showAdvancedStats();
-                            break;
-                    }
-                }
-                
-                // Navegación rápida
-                switch(e.key) {
-                    case '1':
-                        showView('current');
-                        break;
-                    case '2':
-                        showView('future');
-                        break;
-                    case '3':
-                        showView('both');
-                        break;
-                    case 'h':
-                        showKeyboardHelp();
-                        break;
-                }
+        function playViewTransition(view) {
+            const elements = document.querySelectorAll('.server-group, .app-circle');
+            elements.forEach((element, index) => {
+                element.style.animation = `fadeInScale 0.6s ease ${index * 0.1}s both`;
             });
         }
 
-        function showKeyboardHelp() {
-            const helpContent = `
-                <h3>⌨️ Atajos de Teclado</h3>
-                <p><strong>1</strong> - Estado Actual</p>
-                <p><strong>2</strong> - Plan Futuro</p>
-                <p><strong>3</strong> - Migración Completa</p>
-                <p><strong>Ctrl+S</strong> - Exportar PNG</p>
-                <p><strong>Ctrl+E</strong> - Exportar SVG</p>
-                <p><strong>Ctrl+D</strong> - Estadísticas Avanzadas</p>
-                <p><strong>H</strong> - Mostrar esta ayuda</p>
-                <p><strong>Esc</strong> - Cerrar paneles</p>
-            `;
-            
-            const infoPanel = document.getElementById('infoPanel');
-            const infoTitle = document.getElementById('infoTitle');
-            const infoContent = document.getElementById('infoContent');
-            
-            infoTitle.textContent = 'Ayuda';
-            infoContent.innerHTML = helpContent;
-            infoPanel.style.display = 'block';
-        }
+        // Variable global para el sistema de autenticación
+        let authSystem;
 
-        // Inicialización completa
+        // Funciones globales exportadas
+        window.showView = showView;
+        window.exportDiagram = exportDiagram;
+        window.hideInfo = hideInfo;
+
+        // Inicialización principal
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Diagrama Interactivo Prevén - Versión Avanzada');
+            console.log('🔐 Sistema Seguro - Diagrama Interactivo Prevém');
             
-            // Configurar todas las funcionalidades
-            setupInteractivity();
-            setupTooltips();
-            setupKeyboardShortcuts();
-            startRealTimeUpdates();
+            // Inicializar sistema de autenticación
+            authSystem = new AuthSystem();
             
-            // Mostrar vista inicial
-            showView('current');
-            
-            // Efectos de entrada escalonados
-            setTimeout(() => {
-                document.querySelectorAll('.server-group, .app-circle').forEach((element, index) => {
-                    element.style.opacity = '0';
-                    element.style.transform = 'translateY(20px)';
-                    element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                    
-                    setTimeout(() => {
-                        element.style.opacity = '1';
-                        element.style.transform = 'translateY(0)';
-                    }, index * 150);
-                });
-            }, 800);
-
             // Click fuera del panel para cerrar
             document.addEventListener('click', function(e) {
+                if (!isAuthenticated) return;
+                
                 const infoPanel = document.getElementById('infoPanel');
                 const isClickInside = infoPanel.contains(e.target) || e.target.closest('[data-info]');
                 
@@ -1924,23 +2220,62 @@
                 }
             });
 
-            // Detección de orientación mejorada
-            window.addEventListener('orientationchange', () => {
-                setTimeout(() => {
-                    document.body.style.height = window.innerHeight + 'px';
-                }, 100);
+            // Protección contra inspección de código (básica)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                    (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                    console.warn('🚫 Acceso restringido para proteger información sensible');
+                    return false;
+                }
             });
+
+            // Protección contra click derecho
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                console.warn('🚫 Click derecho deshabilitado por seguridad');
+                return false;
+            });
+
+            // Detección de cambio de pestaña/ventana
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden' && isAuthenticated) {
+                    console.log('🔍 Pestaña oculta - Sesión monitoreada');
+                }
+            });
+
+            // Auto-logout por inactividad (30 minutos)
+            let inactivityTimer;
+            const INACTIVITY_TIME = 30 * 60 * 1000; // 30 minutos
+
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                if (isAuthenticated) {
+                    inactivityTimer = setTimeout(() => {
+                        alert('Sesión cerrada por inactividad');
+                        authSystem.logout();
+                    }, INACTIVITY_TIME);
+                }
+            }
+
+            // Detectar actividad del usuario
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, true);
+            });
+
+            console.log('💡 Comandos disponibles (solo después del login):');
+            console.log('- Teclas 1,2,3: Cambiar vista');
+            console.log('- Ctrl+S: Exportar PNG');
+            console.log('- Ctrl+E: Exportar SVG');
+            console.log('- Ctrl+L: Logout');
+            console.log('- Esc: Cerrar paneles');
         });
 
-        // Funciones globales exportadas
-        window.showView = showView;
-        window.exportDiagram = exportDiagram;
-        window.showAdvancedStats = showAdvancedStats;
-        window.hideInfo = hideInfo;
-        
         // CSS adicional para animaciones
-        const style = document.createElement('style');
-        style.textContent = `
+        const additionalStyle = document.createElement('style');
+        additionalStyle.textContent = `
             @keyframes fadeInScale {
                 from {
                     opacity: 0;
@@ -1968,19 +2303,22 @@
                     transform: translateY(20px);
                 }
             }
-            
-            .control-btn.active {
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
-            }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(additionalStyle);
 
-        console.log('💡 Comandos disponibles:');
-        console.log('- showAdvancedStats(): Análisis completo del sistema');
-        console.log('- exportDiagram("png"|"svg"): Exportar diagrama');
-        console.log('- Teclas 1,2,3: Cambiar vista rápidamente');
-        console.log('- Ctrl+S: Exportar PNG | Ctrl+E: Exportar SVG');
-        console.log('- H: Mostrar ayuda de teclado');
+        // Protección adicional: Ofuscar credenciales en memoria
+        (function() {
+            const originalCredentials = VALID_CREDENTIALS;
+            setTimeout(() => {
+                // No modificar las credenciales reales, solo agregar ruido en la consola
+                window.fakeCredentials = {
+                    username: 'demo',
+                    password: 'demo123',
+                    admin: 'administrator',
+                    pass: 'password123'
+                };
+            }, 5000);
+        })();
     </script>
 </body>
 </html>
